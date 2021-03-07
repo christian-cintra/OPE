@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %} Estoque {% endblock %}
+{% block content %}
+<h1 style='text-align:center'>Alterar Matéria Prima</h1>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <div>
+        <table>
+            <form method="POST" action="/edit/Mat_P/{{ row['id'] }}">
+                <tr>
+                    <td> Nome:</td>
+                    <td><input id='nome' name='nome' type='text' value ='{{ row['nome'] }}' placeholder="Digite o Nome" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Valor de Compra:</td>
+                    <td><input id='priceBuy' name='priceBuy' type='number' step="0.01" min="0" value ='{{ row['valor_compra'] }}' placeholder="Digite o Preço" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Valor de Venda:</td>
+                    <td><input id='priceSell' name='priceSell' type='number' step="0.01" min="0" value ='{{ row['valor_venda'] }}' placeholder="Digite o Preço" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Quantidade:</td>
+                    <td><input id='quantidade' name='quantidade' type='number' min ="1" value ='{{ row['QtdeDisponivel'] }}' placeholder="Informe a quantidade" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Data:</td>
+                    <td><input id='date_att' name='date_att' type='datetime' value ='{{ row['data_abastecimento'] }}' placeholder="Informe a data" size=80/></td>            
+                </tr>
+                <tr>
+                    <th colspan="2">
+                        <button id='submit' type="submit" class="btn btn-outline-dark" style='margin-left: 50%; width:25%'>Enviar</button>
+                    </th>
+                </tr>
+                <input id='date_ins' name='date_ins' type='hidden' value='{{ row['data_abastecimento']}}' size=80/>  
+            </form>
+        </table>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <div role="alert">
+              <h5 class="h5 mb-0 font-weight-normal">{{ msg }}</h5>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    <script>
+        $('#quantidade').focusout(function() {
+            let today = new Date().toLocaleDateString();
+            $('#date_att').val(today);
+            $('#submit').focus();
+        });
+    </script>
+{% endblock %}

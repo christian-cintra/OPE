@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %} Estoque {% endblock %}
+{% block navitem %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Filtro
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="#">Quantidade</a>
+      <div class="dropdown-divider"></div>
+    </div>
+  </li>
+{% endblock %}
+{% block content %}
+<h1 style='text-align:center'>Estoque</h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  {% for msg in messages %}
+    <div role="alert">
+      <h5 class="h5 mb-0 font-weight-normal">{{ msg }}</h5>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endwith %}
+<table class='table table-sm'>
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Preço C.</th>
+            <th scope="col">Preço S.</th>
+            <th scope="col">Qtde.</th>            
+            <th scope="col">Data Cad.</th>
+            <th scope="col">Data Alt.</th>
+            <th scope="col">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in query_result %}
+           <tr id={{row['id']}}>
+              <td>{{row['id']}}</td>
+              <td>{{row['nome']}}</td>
+              <td>R$ {{row['valor_compra']}}</td>
+              <td>{{row['valor_venda']}}</td>
+              <td>{{row['QtdeDisponivel']}}</td>
+              <td>{{row['data_abastecimento']}}</td>
+              <td>{{row['data_atualização']}}</td>
+              <td>
+                  <button id='edit' name='edit' class="btn btn-outline-primary" type='button' onclick='editfunction("{{row['id']}}")'>Edit</button>
+                  <button id='delete' name='delete' class="btn btn-outline-danger" type='button' onclick='deletefunction("{{row['id']}}")'>Delete</button> </br>
+              </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+<script type=text/javascript>
+    function editfunction(id) {
+        window.location.href = '/edit/Mat_P/'+id;
+    }
+
+    function addfunction() {
+        console.log('entry');
+        window.location.href = '/add/Mat_P';
+    }
+
+    function deletefunction(id){
+        if (confirm('Deseja realmente excluir esse registro?')) {
+            console.log('Thing was saved to the database.');
+            $.ajax({
+            url: '/delete/Mat_P/'+id,
+            method: 'DELETE',
+            data: {
+                id:id
+            },
+            success: function(data) {
+                console.log('DELETED')
+                $('#'+id).remove()
+            } 
+        })
+        } 
+        else {
+        console.log('Thing was not saved to the database.');
+        }
+    }
+</script>
+{% endblock %}
