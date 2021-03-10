@@ -38,9 +38,18 @@ def add(table):
             flash('Matéria Prima cadastrada com sucesso.')
             return render_template(table+'_add.html')
 
-        elif table == "":
-            pass
-
+        elif table == "Ordem_S":
+            table = "Ordem_S"
+            dt = request.form['detalhes']
+            vl = request.form['valorPecas']
+            vs = request.form['valorServico']
+            fs = request.form['fase']
+            st = request.form['statusPagamento']
+            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {})".format(
+                dt, vl, vs, fs, st)
+            engine.execute(sql)
+            flash('Ordem de Serviço cadastrada com sucesso.')
+            return render_template(table+'_add.html')
         elif table == "":
             pass
 
