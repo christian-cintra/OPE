@@ -63,10 +63,16 @@ def add(table):
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
-    sql = 'select * from MateriaPrima where id = {}'.format(id)
-    query_result = engine.execute(sql)
-    for row in query_result:
-        result = row
+    if table == "Mat_P":
+        sql = 'select * from MateriaPrima where id = {}'.format(id)
+        query_result = engine.execute(sql)
+        for row in query_result:
+            result = row
+    elif table == "Ordem_S":
+        sql = 'select * from OrdensdeServico where id = {}'.format(id)
+        query_result = engine.execute(sql)
+        for row in query_result:
+            result = row
 
     if request.method == 'POST':
         if table == "Mat_P":
@@ -79,9 +85,19 @@ def edit(table, id):
             sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
                 nm, pb, ps, dt, da, qt, id)
             query_result = engine.execute(sql)
+            return redirect(url_for('home'))
         
-        elif table == "":
-            pass
+        elif table == "Ordem_S":
+            table = "Ordem_S"
+            dt = request.form['detalhes']
+            vl = request.form['valorPecas']
+            vs = request.form['valorServico']
+            fs = request.form['fase']
+            st = request.form['statusPagamento']
+            sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {} where id = {}".format(
+                dt, vl, vs, fs, st, id)
+            query_result = engine.execute(sql)
+            return redirect(url_for('OrdensServico'))
 
         elif table == "":
             pass

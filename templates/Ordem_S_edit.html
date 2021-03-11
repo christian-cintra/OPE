@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %} Estoque {% endblock %}
+{% block content %}
+<h1 style='text-align:center'>Alterar Ordem de Serviço</h1>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <div>
+        <table>
+            <form method="POST" action="/edit/Ordem_S/{{ row['id'] }}">
+                <tr>
+                    <td> Detalhes:</td>
+                    <td><input id='detalhes' name='detalhes' type='text' value ='{{ row['detalhes'] }}' placeholder="Digite os Detalhes da O.S." size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Preço das Peças:</td>
+                    <td><input id='valorPecas' name='valorPecas' type='number' step="0.01" min="0" value ='{{ row['valorPecas'] }}' placeholder="Digite o Valor das Peças" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Taxa de Serviço:</td>
+                    <td><input id='valorServico' name='valorServico' type='number' step="0.01" min="0" value ='{{ row['valorServico'] }}' placeholder="Digite o Preço" size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Status da OS:</td>
+                    <td><input id='fase' name='fase' type='number' min ="1" value ='{{ row['fase'] }}' placeholder="Informe o Status atual da O.S." size=80/></td>            
+                </tr>
+                <tr>
+                    <td> Status do Pagamento:</td>
+                    <td><input id='statusPagamento' name='statusPagamento' type='number' min ="1" value ='{{ row['statusPagamento'] }}' placeholder="Informe o Status atual do pagamento" size=80/></td>            
+                </tr>
+                <tr>
+                    <th colspan="2">
+                        <button id='submit' type="submit" class="btn btn-outline-dark" style='margin-left: 50%; width:25%'>Enviar</button>
+                    </th>
+                </tr>
+                <input id='date_ins' name='date_ins' type='hidden' value='{{ row['data_abastecimento']}}' size=80/>  
+            </form>
+        </table>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <div role="alert">
+              <h5 class="h5 mb-0 font-weight-normal">{{ msg }}</h5>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    <script>
+        $('#quantidade').focusout(function() {
+            let today = new Date().toLocaleDateString();
+            $('#date_att').val(today);
+            $('#submit').focus();
+        });
+    </script>
+{% endblock %}
