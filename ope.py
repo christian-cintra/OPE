@@ -22,6 +22,11 @@ def home():
 
     return render_template('estoque.html', query_result=query_result)
 
+@app.route('/OrdensServico')
+def OrdensServico():
+    query_result = engine.execute('select * from OrdensdeServico')
+
+    return render_template('ordens.html', query_result=query_result)
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
@@ -74,7 +79,7 @@ def edit(table, id):
             sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
                 nm, pb, ps, dt, da, qt, id)
             query_result = engine.execute(sql)
-
+        
         elif table == "":
             pass
 
@@ -92,8 +97,9 @@ def delete(table, id):
             sql = 'delete from materiaPrima where id = {}'.format(id)
             engine.execute(sql)
 
-        elif table == "":
-            pass
+        elif table == "Ordem_S":
+            sql = 'delete from OrdensdeServico where id = {}'.format(id)
+            engine.execute(sql)
 
         elif table == "":
             pass
