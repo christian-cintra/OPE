@@ -29,11 +29,20 @@
                 </tr>
                 <tr>
                     <td> Status da OS:</td>
-                    <td><input id='fase' name='fase' type='number' min ="1" placeholder="Informe o Status atual da O.S." size=80/></td>            
+                    <td><select name="fase" id="fase">
+                        <option value=1>1 - Solicitada</option>
+                        <option value=2>2 - Agendamento</option>
+                        <option value=3>3 - Agendada</option>
+                        <option value=4>4 - Executada</option>
+                    </select></td>
                 </tr>
                 <tr>
                     <td> Status do Pagamento:</td>
-                    <td><input id='statusPagamento' name='statusPagamento' type='number' min ="1" placeholder="Informe o Status atual do pagamento" size=80/></td>            
+                    <td><select name="statusPagamento" id="statusPagamento">
+                        <option value=1>1 - Não paga</option>
+                        <option value=2>2 - Paga 1ª Parcela</option>
+                        <option value=3>3 - Paga 2ª Parcela</option>
+                    </select></td>
                 </tr>
                 <tr>
                     <th colspan="2">

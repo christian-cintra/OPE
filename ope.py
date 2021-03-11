@@ -15,6 +15,9 @@ app.secret_key = "oi"
 
 print(engine.table_names())
 
+@app.route('/')
+def inicio():
+    return redirect(url_for('home'))
 
 @app.route('/home')
 def home():
