@@ -1,0 +1,120 @@
+body {
+    --primary-color: #141833;
+    --secondary-color: #fdfd03;
+    --blue-color: #1244b7;
+    font-family: "Nunito", Helvetica, Arial, sans-serif;
+}
+
+.navbar {
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.title {
+	margin-left: 60px;
+	margin-top: 20px;
+}
+
+main {
+    margin: 0 min(120px, 5em);
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.novo-item {
+    background-color: var(--primary-color);
+    color: white !important;
+    height: fit-content;
+    margin: auto 0;
+    border: 2px solid var(--primary-color);
+}
+
+.novo-item:hover {
+    background-color: white;
+    color: var(--primary-color) !important;
+}
+
+.nav-item:hover a {
+    background-color: rgba(20, 24, 51, 0.9);
+    color: white !important;
+   border-radius: 5px;
+}
+
+.nav-item a {
+    font-size: 1.25em;
+    display: block;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.active {
+    background-color: var(--primary-color);
+    color: white !important;
+    border-radius: 5px;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    position: absolute;
+    top: 5px;
+}
+
+#navbarSupportedContent {
+    margin-left: 150px;
+}
+
+/* BASE.HTML */
+.logout svg {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+.logout svg > * {
+    fill: var(--primary-color);
+}
+
+.logout:hover svg > * {
+    fill: var(--blue-color);
+}
+
+/* table */
+.btn-outline-primary{
+    color: #0216ad;
+    border-color: #0216ad;
+}
+
+.btn-outline-primary:hover{
+    background-color: #0216ad !important;
+    border-color: #0216ad;
+}
+
+.flex{
+    display: flex;    
+    margin-bottom: 30px;
+    justify-content: space-between;
+}
+
+.mb{
+    margin-bottom: 30px;
+}
+
+button{
+    text-align: center;
+}
+
+@media only screen and (max-width: 500px) {
+    .header-container {
+
+        margin-top: 50px;
+    }
+    main {
+        margin: 0 1em;
+    }
+
+    .title {
+        margin-left: 10px;
+    }
+  }

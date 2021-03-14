@@ -5,7 +5,7 @@
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <div>
         <table>
-            <form method="POST" action="/edit/Ordem_S/{{ row['id'] }}">
+            <form method="PUT" action="/edit/Ordem_S/{{ row['id'] }}">
                 <tr>
                     <td> Detalhes:</td>
                     <td><input id='detalhes' name='detalhes' type='text' value ='{{ row['detalhes'] }}' placeholder="Digite os Detalhes da O.S." size=80/></td>            

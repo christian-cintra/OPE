@@ -12,42 +12,52 @@
   </li>
 {% endblock %}
 {% block content %}
-<h1 style='text-align:center'>Estoque</h1>
+
+<div class="flex header-container">
+  <h1 class="title">Estoque</h1>
+  <button type="button" class="btn novo-item" onclick="addfunction()">
+    Novo item</button>
+</div>
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
-  {% for msg in messages %}
-    <div role="alert">
-      <h5 class="h5 mb-0 font-weight-normal">{{ msg }}</h5>
-    </div>
-  {% endfor %}
+{% for msg in messages %}
+<div class="alert alert-primary" role="alert">
+    {{ msg }}
+</div>
+{% endfor %}
 {% endif %}
 {% endwith %}
-<table class='table table-sm'>
+
+<table class='table table-sm table-striped table-responsive-md'>
     <thead>
         <tr>
             <th scope="col">ID</th>
+            <th scope="col">Quantidade</th>    
             <th scope="col">Nome</th>
-            <th scope="col">Preço C.</th>
-            <th scope="col">Preço S.</th>
-            <th scope="col">Qtde.</th>            
-            <th scope="col">Data Cad.</th>
-            <th scope="col">Data Alt.</th>
-            <th scope="col">Ações</th>
+            <!-- <th scope="col">Preço C.</th> -->
+            <th scope="col">Preço</th>
+            <th scope="col">Cadastrado em</th>
+            <th scope="col">Alterado em</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
         {% for row in query_result %}
-           <tr id={{row['id']}}>
-              <td>{{row['id']}}</td>
-              <td>{{row['nome']}}</td>
-              <td>R$ {{row['valor_compra']}}</td>
-              <td>{{row['valor_venda']}}</td>
+           <tr id={{row.id}}>
+              <td>{{row.id}}</td>
               <td>{{row['QtdeDisponivel']}}</td>
+              <td>{{row['nome']}}</td>
+              <!-- <td>R$ {{row['valor_compra']}}</td> -->
+              <td>{{row['valor_venda']}}</td>
               <td>{{row['data_abastecimento']}}</td>
               <td>{{row['data_atualização']}}</td>
               <td>
-                  <button id='edit' name='edit' class="btn btn-outline-primary" type='button' onclick='editfunction("{{row['id']}}")'>Edit</button>
-                  <button id='delete' name='delete' class="btn btn-outline-danger" type='button' onclick='deletefunction("{{row['id']}}")'>Delete</button> </br>
+                <i class="fa fa-edit icon pointer" onclick='editfunction("{{row.id}}")'></i>
+              </td>
+              <td>
+                <i class="fa fa-remove icon pointer" onclick='deletefunction("{{row.id}}")'></i>
               </td>
             </tr>
         {% endfor %}

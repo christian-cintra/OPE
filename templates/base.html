@@ -5,47 +5,112 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>{% block title %}{% endblock %}</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
     integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <script src='main.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script type=text/javascript src="{{
+      url_for('static', filename='js/main.js') }}"></script>
+
+  <script>
+
+    function carregarSelecaoMenu() {
+
+      var location = window.location.href;
+      console.log('loc', location)
+
+      var element;
+
+      if(location.indexOf("OrdensServico") != -1){
+        element = document.getElementById("ordens");
+      } else if(location.indexOf("Estoque") != -1 || location.indexOf("Mat_P") != -1){
+        element = document.getElementById("estoque");
+      } else if(location.indexOf("Colaboradores") != -1){
+        element = document.getElementById("func");
+      } else if(location.indexOf("servicos") != -1){
+        element = document.getElementById("servicos");
+      }
+      
+      element.classList.add("active");
+
+      $('.navbar-nav li ').click(function() {
+        var current = document.getElementsByClassName("active");
+        current[0].className = current[0].className.replace(" active", "");
+        $(this).className += " active";
+      }); 
+    }
+
+
+  </script>
 </head>
-<body>
-    <div class='container'>
-        <h1 style='text-align:center'></h1>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom:10px">
-            <a class="navbar-brand" href='/home'>Cintra Instalações</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Cadastros
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item" href="/add/Mat_P">Matéria Prima</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="/add/Ordem_S">Ordens de Serviço</a>
-                    </div>
-                </li>
-                {% block navitem %}
-                {% endblock %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/#">Sair</a>
-                  </li>
-              </ul>
+<body onload="carregarSelecaoMenu()">
+
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light " style="margin-bottom:10px">
+      <a class="navbar-brand" href='/Estoque'>
+        <img class="logo" src="{{ url_for('static', filename='logo.jpg') }}" />
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item">
+            <a id="ordens" class="nav-link" href="/OrdensServico">Ordens de Serviço</a>
+          </li>
+
+          <li class="nav-item">
+            <a id="estoque" class="nav-link" href="/Estoque">Estoque</a>
+          </li>
+
+          <li class="nav-item">
+            <a id="func" class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Colaboradores</a>
+          </li>
+
+          <li class="nav-item">
+            <a id="servicos" class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Serviços</a>
+          </li>
+
+
+          <!-- <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Cadastros
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="/add/Mat_P">Matéria Prima</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/add/Ordem_S">Ordens de Serviço</a>
             </div>
-          </nav>
-                  {% block content %} 
-                  {% endblock %}
+          </li> -->
 
+          {% block navitem %}
+          {% endblock %}
 
+          
+        </ul>
+      </div>
+
+      <div class="logout">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+          <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+        </svg>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+  
+    {% block content %} 
+    {% endblock %}
+
+  </main>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script> 
     
 </body>
 </html>

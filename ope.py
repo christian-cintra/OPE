@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from datetime import timedelta
+from datetime import timedelta, datetime
 import urllib
 import pyodbc
 
@@ -12,15 +12,16 @@ engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, {})
 app.config['SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc:///?odbc_connect=%s" % params
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
+app.debug = True
 
 print(engine.table_names())
 
 @app.route('/')
 def inicio():
-    return redirect(url_for('home'))
+    return redirect(url_for('Estoque'))
 
-@app.route('/home')
-def home():
+@app.route('/Estoque')
+def Estoque():
     query_result = engine.execute('select * from MateriaPrima')
 
     return render_template('estoque.html', query_result=query_result)
@@ -33,18 +34,22 @@ def OrdensServico():
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
+    print('register')
     if request.method == 'POST':
         if table == "Mat_P":
             nm = request.form['nome']
             pb = request.form['priceBuy']
             ps = request.form['priceSell']
-            dt = request.form['date_ins']
+            dt = datetime.now()
+            da = datetime.now()
             qt = request.form['quantidade']
-            sql = "insert into MateriaPrima values ('{}', {}, {}, '{}',null, {})".format(
-                nm, pb, ps, dt, qt)
+            sql = "insert into MateriaPrima values ('{}', {}, {}, '{}','{}', {})".format(
+                nm, pb, ps, dt, da, qt)
             engine.execute(sql)
             flash('Matéria Prima cadastrada com sucesso.')
-            return render_template(table+'_add.html')
+            print(request.form)
+
+            return render_template(table+'_edit.html', method="POST", row={})
 
         elif table == "Ordem_S":
             table = "Ordem_S"
@@ -61,11 +66,13 @@ def add(table):
         elif table == "":
             pass
 
-    return render_template(table+'_add.html')
+    return render_template(table+'_edit.html', method="POST", row={})
 
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
+    print('edit')
+    print(request.method)
     if table == "Mat_P":
         sql = 'select * from MateriaPrima where id = {}'.format(id)
         query_result = engine.execute(sql)
@@ -83,12 +90,14 @@ def edit(table, id):
             pb = request.form['priceBuy']
             ps = request.form['priceSell']
             dt = request.form['date_ins']
-            da = request.form['date_att']
+            da = datetime.now()
             qt = request.form['quantidade']
             sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
                 nm, pb, ps, dt, da, qt, id)
             query_result = engine.execute(sql)
-            return redirect(url_for('home'))
+            print('query', query_result)
+            flash('Item alterado com sucesso')
+            return redirect(url_for('Estoque'))
         
         elif table == "Ordem_S":
             table = "Ordem_S"
@@ -105,7 +114,8 @@ def edit(table, id):
         elif table == "":
             pass
         flash('Registro alterado com sucesso')
-        return redirect(url_for('home'))
+        return redirect(url_for('Estoque'))
+
     return render_template(table+'_edit.html', row=result)
 
 

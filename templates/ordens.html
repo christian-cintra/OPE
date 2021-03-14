@@ -12,7 +12,10 @@
   </li>
 {% endblock %}
 {% block content %}
-<h1 style='text-align:center'>Ordens de Serviço</h1>
+<div class="flex">
+  <h1 class="title">Ordens de Serviço</h1>
+  <button type="button" class="btn novo-item">Novo item</button>
+</div>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
   {% for msg in messages %}
