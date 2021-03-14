@@ -28,9 +28,19 @@ def Estoque():
 
 @app.route('/OrdensServico')
 def OrdensServico():
-    query_result = engine.execute('select * from OrdensdeServico')
+    query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
 
-    return render_template('ordens.html', query_result=query_result)
+    query_agendadas = engine.execute('select * from OrdensdeServico where fase = 3')
+
+    query_executadas = engine.execute('select * from OrdensdeServico where fase = 4')
+
+    results = {
+        'novas': query_novas,
+        'agendadas': query_agendadas,
+        'executadas': query_executadas,
+    }
+
+    return render_template('ordens.html', query_result=results)
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
@@ -66,8 +76,10 @@ def add(table):
         elif table == "":
             pass
 
-    return render_template(table+'_edit.html', method="POST", row={})
-
+    if table == "Mat_P":
+        return render_template(table+'_edit.html', method="POST", row={})
+    else:
+        return render_template(table+'_add.html')
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
@@ -116,7 +128,16 @@ def edit(table, id):
         flash('Registro alterado com sucesso')
         return redirect(url_for('Estoque'))
 
-    return render_template(table+'_edit.html', row=result)
+    if(table == "Ordem_S"):
+        materias_primas = engine.execute('select * from MateriasOrdemDeServico where id_os = ' + str(result.id))
+
+        estoque = engine.execute('select * from MateriaPrima')
+
+        print('materias', materias_primas)
+        print('estoque', estoque)
+        return render_template(table+'_edit.html', row=result, materiasPrimas=materias_primas, estoque=estoque)
+    else:
+        return render_template(table+'_edit.html', row=result)
 
 
 @app.route('/delete/<table>/<int:id>', methods=['DELETE'])

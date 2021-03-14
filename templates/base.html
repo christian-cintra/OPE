@@ -22,7 +22,7 @@
 
       var element;
 
-      if(location.indexOf("OrdensServico") != -1){
+      if(location.indexOf("OrdensServico") != -1 || location.indexOf("Ordem_S") != -1){
         element = document.getElementById("ordens");
       } else if(location.indexOf("Estoque") != -1 || location.indexOf("Mat_P") != -1){
         element = document.getElementById("estoque");

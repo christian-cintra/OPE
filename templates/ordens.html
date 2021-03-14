@@ -14,7 +14,7 @@
 {% block content %}
 <div class="flex">
   <h1 class="title">Ordens de Serviço</h1>
-  <button type="button" class="btn novo-item">Novo item</button>
+  <button type="button" class="btn novo-item" onclick="addfunction()">Novo item</button>
 </div>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -25,34 +25,63 @@
   {% endfor %}
 {% endif %}
 {% endwith %}
-<table class='table table-sm'>
-    <thead>
-        <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Detalhes</th>
-            <th scope="col">Valores de Peças</th>
-            <th scope="col">Taxa de Serviço</th>
-            <th scope="col">Status da O.S.</th>            
-            <th scope="col">Status do Pagamento</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in query_result %}
-           <tr id={{row['id']}}>
-              <td>{{row['id']}}</td>
-              <td>{{row['detalhes']}}</td>
-              <td style="text-align:center">R$ {{row['valorPecas']}}</td>
-              <td style="text-align:center">R$ {{row['valorServico']}}</td>
-              <td style="text-align:center">{{row['fase']}}</td>
-              <td style="text-align:center">{{row['statusPagamento']}}</td>
-              <td>
-                  <button id='edit' name='edit' class="btn btn-outline-primary" type='button' onclick='editfunction("{{row['id']}}")'>Edit</button>
-                  <button id='delete' name='delete' class="btn btn-outline-danger" type='button' onclick='deletefunction("{{row['id']}}")'>Delete</button> </br>
-              </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-    </table>
+
+<section class="itens-ordens">
+  <div class="ordens-novas">
+    <h3>Novas</h3>
+    
+    {% for row in query_result.novas%}
+      <div class="card" style="width: 18rem;"  id={{row.id}}>
+        <div class="card-body">
+          <h5 class="card-title">{{row.detalhes}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{row.valorPecas}}</h6>
+          <p class="card-text">Peças: {{row.valorPecas}}</p>
+          <p class="card-text">Serviço: {{row.valorServico}}</p>
+          <p class="card-text">Pagamento: {{row.statusPagamento}}</p>
+          <a href="#" class="card-link" onclick='editfunction("{{row.id}}")'>Editar</a>
+          <a href="#" class="card-link" onclick='deletefunction("{{row.id}}")'>Remover</a>
+        </div>
+      </div>
+      {% endfor %}
+  </div>
+
+  <div class="ordens-agendadas">
+    <h3>Agendadas</h3>
+    {% for item in query_result.agendadas %}
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{item.detalhes}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{item.valorPecas}}</h6>
+          <p class="card-text">Peças: {{item.valorPecas}}</p>
+          <p class="card-text">Serviço: {{item.valorServico}}</p>
+          <p class="card-text">Pagamento: {{item.statusPagamento}}</p>
+          <a href="#" class="card-link" onclick='editfunction("{{item.id}}")'>Editar</a>
+          <a href="#" class="card-link" onclick='deletefunction("{{item.id}}")'>Remover</a>
+        </div>
+      </div>
+      {% endfor %}
+  </div>
+
+  <div class="ordens-executadas">
+    <h3>Executadas</h3>
+    {% for row in query_result['executadas'] %}
+      <div class="card" style="width: 18rem;"  id={{row.id}}>
+        <div class="card-body">
+          <h5 class="card-title">{{row.detalhes}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{row.valorPecas}}</h6>
+          <p class="card-text">Peças: {{row.valorPecas}}</p>
+          <p class="card-text">Serviço: {{row.valorServico}}</p>
+          <p class="card-text">Pagamento: {{row.statusPagamento}}</p>
+          <a href="#" class="card-link" onclick='editfunction("{{row.id}}")'>Editar</a>
+          <a href="#" class="card-link" onclick='deletefunction("{{row.id}}")'>Remover</a>
+        </div>
+      </div>
+      {% endfor %}
+  </div>
+
+
+</section>
+
 </div>
 <script type=text/javascript>
     function editfunction(id) {
