@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from datetime import timedelta, datetime
 import urllib
 import pyodbc
 
 app = Flask(__name__)
+CORS(app)
 params = urllib.parse.quote_plus(
     "DRIVER={SQL Server};SERVER=ght.database.windows.net;DATABASE=ghteam_db;UID=ghtadmin;PWD=GHT_SI4B2020")
 db = SQLAlchemy(app)
@@ -16,9 +18,48 @@ app.debug = True
 
 print(engine.table_names())
 
+@app.route('/hello')
+def say_hello_world():
+    return {'result': "Hello World"}
+
 @app.route('/')
 def inicio():
     return redirect(url_for('Estoque'))
+
+@app.route('/api/estoque')
+def EstoqueAPI():
+    query_result = engine.execute('select * from MateriaPrima')
+    print('query_result', query_result)
+    return jsonify({'result': [dict(row) for row in query_result]})
+
+@app.route('/api/ordensdeservico')
+def OrdensDeServicoAPI():
+    data = engine.execute('select * from OrdensdeServico')
+
+    return jsonify({'result': [dict(row) for row in data]})
+
+
+@app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
+def GetItems(table, id):
+    print('talbe ', table)
+    print('id ', id)
+    if table == "Mat_P":
+        sql = 'select * from MateriaPrima where id = {}'.format(id)
+        query_result = engine.execute(sql)
+        for row in query_result:
+            result = row
+            
+    elif table == "Ordem_S":
+        sql = 'select * from OrdensdeServico where id = {}'.format(id)
+        query_result = engine.execute(sql)
+
+        for row in query_result:
+            result = row
+
+    results = [str(row) for row in result]
+    print('a', results)
+    return jsonify({'results': results})
+
 
 @app.route('/Estoque')
 def Estoque():
@@ -44,7 +85,7 @@ def OrdensServico():
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
-    print('register')
+    print('register', request.form)
     if request.method == 'POST':
         if table == "Mat_P":
             nm = request.form['nome']
