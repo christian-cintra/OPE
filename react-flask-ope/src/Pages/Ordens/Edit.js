@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
   
 const EditOrdem = () => {
     const [item, setItem] = useState({});
+    const [estoqueItensUtilizado, setEstoqueItensUtilizado] = useState([]);
+
+    const [estoque, setEstoque] = useState([]);
     const [id, setId] = useState([]);
 
     useEffect(() => {
@@ -9,8 +12,7 @@ const EditOrdem = () => {
         var url = window.location.href;
         setId(url.substring(url.lastIndexOf('/') + 1));
 
-        console.log('a', url.substring(url.lastIndexOf('/') + 1))
-
+        // pegando informações da ordem de serviço
         fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
             console.log('estoque', data)
 
@@ -28,11 +30,26 @@ const EditOrdem = () => {
 
             console.log('body', body)
             console.log('item', item)
+        });
+
+        // pegando itens do estoque
+        fetch('/api/estoque').then(res => res.json()).then(data => {
+            console.log('estoque', data)
+            setEstoque(data.result);
           });
     }, []);
 
     const addFunction = () => {
         window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
+    }
+
+    const itemEstoque = (item) => {
+        if(estoqueItensUtilizado.findIndex(i => i.id == item.id)){
+            return <></>
+        }
+        return (<button key={item.id} type="button" class="list-group-item list-group-item-action" onClick={() => {
+            return setEstoqueItensUtilizado([...estoqueItensUtilizado, item])
+        }}>{item.nome}</button>)
     }
 
     return (
@@ -86,6 +103,78 @@ const EditOrdem = () => {
                             <button id="submit" type="submit" className="btn novo-item" style={{width: '200px'}}>Salvar</button>
                         </div>
                     </div> 
+
+                    <br/>
+                    <br/>
+
+                    <div className="flex">
+
+                        <div>
+                            <h3>Matérias Primas requeridas</h3>
+                            <div>
+                            {estoqueItensUtilizado.map((item) => (
+                                    <div className="flex">
+                                        <div key={item?.id} class="list-group-item">
+                                            <span><b>{item?.Quantidade}</b></span>
+                                            <span> - </span>
+                                            <span>{item?.nome}</span>
+                                        </div>
+                                            <span className="add-option" onClick={() => {
+
+                                                const newList = estoqueItensUtilizado.map((materia) => {
+                                                    if (materia.id === item.id) {
+                                                      materia.Quantidade = materia.Quantidade +1;
+                                                    }
+                                                    return materia;
+                                                })
+                                                return setEstoqueItensUtilizado(newList)
+                                            }}>+</span>
+                                            <span className="add-option"  onClick={() => {
+                                                const newList = estoqueItensUtilizado.map((materia) => {
+                                                    if (materia.id === item.id) {
+                                                        if(materia.Quantidade > 1){
+
+                                                            materia.Quantidade = materia.Quantidade -1;
+                                                            return materia;
+                                                        }
+                                                    }else{
+                                                        return materia;
+                                                    }
+                                                    
+                                                })
+                                                console.log('newlist', newList)
+                                                return setEstoqueItensUtilizado(newList.filter(n => n != undefined))
+                                            }}>-</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{width:'100%', textAlign: 'center'}}>
+                                <button className="btn novo-item" style={{width: '150px'}} onClick={() => {
+
+                                }}>Salvar itens</button>
+                            </div>
+                        </div>
+
+                        <div style={{maxWidth: '300px'}}>
+                            <h5><b>Selecione as Matérias Primas necessárias</b></h5>
+
+                            <div class="list-group">
+                                {estoque.map((item) => (
+                                    (<button key={item.id} type="button" class="list-group-item list-group-item-action" onClick={() => {
+                                        setEstoque(estoque.filter((e) => e.id != item.id))
+
+                                        var novoItem = {...item};
+                                        novoItem.Quantidade = 1;
+                                        console.log('novo item', novoItem)
+                                        return setEstoqueItensUtilizado([...estoqueItensUtilizado, novoItem])
+                                    }}>{item.nome}
+                                    </button>)
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
                 </form>
 
                 

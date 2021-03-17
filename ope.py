@@ -57,8 +57,53 @@ def GetItems(table, id):
             result = row
 
     results = [str(row) for row in result]
-    print('a', results)
     return jsonify({'results': results})
+
+# @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST', 'GET'])
+# def AddMateriasPrimasNaOrdemServico(table):
+
+#     sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+#         query_result = engine.execute(sql)
+#         for row in query_result:
+#             result = row
+            
+
+#     print('register', request.form)
+#     if request.method == 'POST':
+#         if table == "Mat_P":
+#             nm = request.form['nome']
+#             pb = request.form['priceBuy']
+#             ps = request.form['priceSell']
+#             dt = datetime.now()
+#             da = datetime.now()
+#             qt = request.form['quantidade']
+#             sql = "insert into MateriaPrima values ('{}', {}, {}, '{}','{}', {})".format(
+#                 nm, pb, ps, dt, da, qt)
+#             engine.execute(sql)
+#             flash('Matéria Prima cadastrada com sucesso.')
+#             print(request.form)
+
+#             return render_template(table+'_edit.html', method="POST", row={})
+
+#         elif table == "Ordem_S":
+#             table = "Ordem_S"
+#             dt = request.form['detalhes']
+#             vl = request.form['valorPecas']
+#             vs = request.form['valorServico']
+#             fs = request.form['fase']
+#             st = request.form['statusPagamento']
+#             sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {})".format(
+#                 dt, vl, vs, fs, st)
+#             engine.execute(sql)
+#             flash('Ordem de Serviço cadastrada com sucesso.')
+#             return render_template(table+'_add.html')
+#         elif table == "":
+#             pass
+
+#     if table == "Mat_P":
+#         return render_template(table+'_edit.html', method="POST", row={})
+#     else:
+#         return render_template(table+'_add.html')
 
 
 @app.route('/Estoque')

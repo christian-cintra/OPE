@@ -143,3 +143,10 @@ grid-template-areas: 'ordens-novas ordens-agendadas ordens-executadas';
 .ordens-executadas {
   grid-area: ordens-executadas;
 }
+
+.add-option {
+  font-size: 30px;
+  font-weight: bold;
+  color: var(--blue-color);
+  cursor: pointer;
+}
