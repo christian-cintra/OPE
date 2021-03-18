@@ -27,16 +27,46 @@ const EditOrdem = () => {
                 statusPagamento: data[5]
             }
             setItem(body);
-
-            console.log('body', body)
-            console.log('item', item)
         });
 
         // pegando itens do estoque
         fetch('/api/estoque').then(res => res.json()).then(data => {
-            console.log('estoque', data)
-            setEstoque(data.result);
+            // setEstoque(data.result);
+
+            // pegando materias primas selecionadas para a ordem de serviço
+        fetch(`/api/materiasprimas/ordemservico/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(dataResult => {
+
+            const materias = estoque;
+
+            var dados = [];
+
+            data.result.forEach(esto => {
+
+                dataResult.results.forEach(da => {
+                    console.log('eeee', materias)
+                    // var item = materias.find(i => i.id == da.id_materia_prima);
+                    if(esto.id == da.id_materia_prima){
+                        var mat = esto;
+                        mat.Quantidade = da.Quantidade
+                        dados.push(mat)
+
+                        
+
+                    }
+                });
+            });     
+            console.log('dad', dados)       
+            setEstoqueItensUtilizado(dados);
+
+            dados.map((d) => {
+                console.log(d)
+                data.result = data.result.filter((e) => parseInt(e.id) != parseInt(d.id));
+            })
+
+            setEstoque(data.result)
+        });
           });
+
     }, []);
 
     const addFunction = () => {

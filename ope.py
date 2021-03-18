@@ -59,7 +59,15 @@ def GetItems(table, id):
     results = [str(row) for row in result]
     return jsonify({'results': results})
 
-@app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST', 'GET'])
+@app.route('/api/materiasprimas/ordemservico/<int:id>', methods=['GET'])
+def GetMateriasPrimasPordemServico(id):
+    sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+    query_result = engine.execute(sql)
+
+    return jsonify({'results': [dict(row) for row in query_result]})
+
+
+@app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
 def AddMateriasPrimasNaOrdemServico(id):
     # body = request.args("lista")
     # print('body', request)
@@ -81,18 +89,20 @@ def AddMateriasPrimasNaOrdemServico(id):
         id_materia_prima = row[1]
         for item in data:
             print('row', row)
+            print('item', item)
             if id_materia_prima == item["id_materia_prima"]:
                 item_permanece = True
-                print('igual')
 
-        if item_permanece == True:
-            print('item permanece')
-            if row[2] != item["quantidade"]:
-                # atualiza a quantidade de itens de matérias primas já cadastradas
-                sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
-                query_result = engine.execute(sql)
-        else :
+                print('item permanece', id_materia_prima, row[2], item["quantidade"])
+                if row[2] != item["quantidade"]:
+                    print('update', id, id_materia_prima)
+                    # atualiza a quantidade de itens de matérias primas já cadastradas
+                    sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
+                    query_result = engine.execute(sql)
+                    
+        if not item_permanece :
             # remove o item
+            print('remove ',id, id_materia_prima)
             sql = 'delete from MateriasOrdemDeServico where id_os = {} and id_materia_prima = {}'.format(id, id_materia_prima)
             engine.execute(sql)
 
@@ -104,8 +114,7 @@ def AddMateriasPrimasNaOrdemServico(id):
                 novo_item = False
 
         if novo_item:
-            print('diferente')
-            print('not cadastrado')
+            print('novo', item['id_os'], item['id_materia_prima'])
             id_os = int(item['id_os'])
             id_materia_prima = item['id_materia_prima']
             Quantidade = item['quantidade']
