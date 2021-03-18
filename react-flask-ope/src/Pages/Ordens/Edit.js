@@ -149,17 +149,18 @@ const EditOrdem = () => {
                                             <span> - </span>
                                             <span>{item?.nome}</span>
                                         </div>
+                                            <div>
                                             <span className="add-option" onClick={() => {
 
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
-                                                      materia.Quantidade = materia.Quantidade +1;
+                                                    materia.Quantidade = materia.Quantidade +1;
                                                     }
                                                     return materia;
                                                 })
                                                 return setEstoqueItensUtilizado(newList)
-                                            }}>+</span>
-                                            <span className="add-option"  onClick={() => {
+                                                }}>+</span>
+                                                <span className="add-option" style={{marginLeft: '10px'}} onClick={() => {
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
                                                         if(materia.Quantidade > 1){
@@ -174,7 +175,8 @@ const EditOrdem = () => {
                                                 })
                                                 console.log('newlist', newList)
                                                 return setEstoqueItensUtilizado(newList.filter(n => n != undefined))
-                                            }}>-</span>
+                                                }}>-</span>
+                                            </div>
                                     </div>
                                 ))}
                             </div>
