@@ -53,7 +53,7 @@ const Ordens = () => {
     return (
             <main>
                 <div class="flex header-container">
-                    <h1 class="title">Estoque</h1>
+                    <h1 class="title">Ordens de Serviço</h1>
                     <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
                 </div>
 
