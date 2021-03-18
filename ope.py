@@ -16,6 +16,17 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
 app.debug = True
 
+class Usuario(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    login = db.Column(db.String(255))
+    senha = db.Column(db.String(255))
+    nome = db.Column(db.String(80))
+
+    def __init__(self, login, senha, nome):
+        self.login = login
+        self.senha = senha
+        self.nome = nome
+
 print(engine.table_names())
 
 @app.route('/hello')
@@ -23,8 +34,25 @@ def say_hello_world():
     return {'result': "Hello World"}
 
 @app.route('/')
-def inicio():
-    return redirect(url_for('Estoque'))
+def rota_Raiz():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    classeFlash = 'alert alert-success'
+    if request.method == 'POST':
+        login = request.form['email']
+        senha = request.form['password']
+        user = Usuario.query.filter_by(login=login, senha=senha).first()
+        if user is None:
+            flash('Incorrect email or password.')
+            classeFlash = 'alert alert-danger'
+        else:
+            session.permanent = True
+            session['user'] = user.nome
+            return redirect(url_for('Estoque'))
+    return render_template('index.html', classeFlash=classeFlash)            
+
 
 @app.route('/api/estoque')
 def EstoqueAPI():
