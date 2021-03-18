@@ -27,16 +27,46 @@ const EditOrdem = () => {
                 statusPagamento: data[5]
             }
             setItem(body);
-
-            console.log('body', body)
-            console.log('item', item)
         });
 
         // pegando itens do estoque
         fetch('/api/estoque').then(res => res.json()).then(data => {
-            console.log('estoque', data)
-            setEstoque(data.result);
+            // setEstoque(data.result);
+
+            // pegando materias primas selecionadas para a ordem de serviço
+        fetch(`/api/materiasprimas/ordemservico/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(dataResult => {
+
+            const materias = estoque;
+
+            var dados = [];
+
+            data.result.forEach(esto => {
+
+                dataResult.results.forEach(da => {
+                    console.log('eeee', materias)
+                    // var item = materias.find(i => i.id == da.id_materia_prima);
+                    if(esto.id == da.id_materia_prima){
+                        var mat = esto;
+                        mat.Quantidade = da.Quantidade
+                        dados.push(mat)
+
+                        
+
+                    }
+                });
+            });     
+            console.log('dad', dados)       
+            setEstoqueItensUtilizado(dados);
+
+            dados.map((d) => {
+                console.log(d)
+                data.result = data.result.filter((e) => parseInt(e.id) != parseInt(d.id));
+            })
+
+            setEstoque(data.result)
+        });
           });
+
     }, []);
 
     const addFunction = () => {
@@ -119,17 +149,18 @@ const EditOrdem = () => {
                                             <span> - </span>
                                             <span>{item?.nome}</span>
                                         </div>
+                                            <div>
                                             <span className="add-option" onClick={() => {
 
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
-                                                      materia.Quantidade = materia.Quantidade +1;
+                                                    materia.Quantidade = materia.Quantidade +1;
                                                     }
                                                     return materia;
                                                 })
                                                 return setEstoqueItensUtilizado(newList)
-                                            }}>+</span>
-                                            <span className="add-option"  onClick={() => {
+                                                }}>+</span>
+                                                <span className="add-option" style={{marginLeft: '10px'}} onClick={() => {
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
                                                         if(materia.Quantidade > 1){
@@ -144,14 +175,40 @@ const EditOrdem = () => {
                                                 })
                                                 console.log('newlist', newList)
                                                 return setEstoqueItensUtilizado(newList.filter(n => n != undefined))
-                                            }}>-</span>
+                                                }}>-</span>
+                                            </div>
                                     </div>
                                 ))}
                             </div>
 
                             <div style={{width:'100%', textAlign: 'center'}}>
-                                <button className="btn novo-item" style={{width: '150px'}} onClick={() => {
+                                <button className="btn novo-item" style={{width: '150px'}} onClick={(event) => {
+                                    event.preventDefault();
 
+                                    var body = estoqueItensUtilizado.map(it => (
+                                        {
+                                            "id_os": parseInt(id),
+                                            "id_materia_prima": it.id,
+                                            "quantidade": it.Quantidade,
+                                            "valor": it.valor_venda
+                                        }
+                                    ))
+
+                                    console.log('boduy', estoqueItensUtilizado)
+                                    console.log('boduy', body)
+
+                                    fetch(`/add/materiasprimas/ordemservico/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                          'Accept': 'application/json',
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(body)
+                                    },
+                                        ).then(res => res.json()).then(data => {
+                                        console.log('response', data)
+                                      });
+                                      
                                 }}>Salvar itens</button>
                             </div>
                         </div>
