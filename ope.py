@@ -59,51 +59,62 @@ def GetItems(table, id):
     results = [str(row) for row in result]
     return jsonify({'results': results})
 
-# @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST', 'GET'])
-# def AddMateriasPrimasNaOrdemServico(table):
+@app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST', 'GET'])
+def AddMateriasPrimasNaOrdemServico(id):
+    # body = request.args("lista")
+    # print('body', request)
+    data = request.get_json()
+    sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+    query_result = engine.execute(sql)
 
-#     sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
-#         query_result = engine.execute(sql)
-#         for row in query_result:
-#             result = row
-            
+    rows = []
 
-#     print('register', request.form)
-#     if request.method == 'POST':
-#         if table == "Mat_P":
-#             nm = request.form['nome']
-#             pb = request.form['priceBuy']
-#             ps = request.form['priceSell']
-#             dt = datetime.now()
-#             da = datetime.now()
-#             qt = request.form['quantidade']
-#             sql = "insert into MateriaPrima values ('{}', {}, {}, '{}','{}', {})".format(
-#                 nm, pb, ps, dt, da, qt)
-#             engine.execute(sql)
-#             flash('Matéria Prima cadastrada com sucesso.')
-#             print(request.form)
+    for row in query_result:
+        rows.append(row)
 
-#             return render_template(table+'_edit.html', method="POST", row={})
+    # percorrer lista do banco comparando com lista recebida para atualizar quantidade ou remover itens se necessário
 
-#         elif table == "Ordem_S":
-#             table = "Ordem_S"
-#             dt = request.form['detalhes']
-#             vl = request.form['valorPecas']
-#             vs = request.form['valorServico']
-#             fs = request.form['fase']
-#             st = request.form['statusPagamento']
-#             sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {})".format(
-#                 dt, vl, vs, fs, st)
-#             engine.execute(sql)
-#             flash('Ordem de Serviço cadastrada com sucesso.')
-#             return render_template(table+'_add.html')
-#         elif table == "":
-#             pass
+    for row in rows:
+        ja_cadastrado = False
+        item_permanece = False
 
-#     if table == "Mat_P":
-#         return render_template(table+'_edit.html', method="POST", row={})
-#     else:
-#         return render_template(table+'_add.html')
+        id_materia_prima = row[1]
+        for item in data:
+            print('row', row)
+            if id_materia_prima == item["id_materia_prima"]:
+                item_permanece = True
+                print('igual')
+
+        if item_permanece == True:
+            print('item permanece')
+            if row[2] != item["quantidade"]:
+                # atualiza a quantidade de itens de matérias primas já cadastradas
+                sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
+                query_result = engine.execute(sql)
+        else :
+            # remove o item
+            sql = 'delete from MateriasOrdemDeServico where id_os = {} and id_materia_prima = {}'.format(id, id_materia_prima)
+            engine.execute(sql)
+
+    # percorre lista recebida comparando com lista do banco para cadastrar se necessário
+    for item in data:
+        novo_item = True
+        for row in rows:
+            if(row[1] == item["id_materia_prima"]):
+                novo_item = False
+
+        if novo_item:
+            print('diferente')
+            print('not cadastrado')
+            id_os = int(item['id_os'])
+            id_materia_prima = item['id_materia_prima']
+            Quantidade = item['quantidade']
+            valor = item['valor']
+            sql = "insert into MateriasOrdemDeServico values ('{}', {}, {}, {})".format(id_os, id_materia_prima, Quantidade, valor)
+            engine.execute(sql)
+
+    print('fim')
+    return ""
 
 
 @app.route('/Estoque')

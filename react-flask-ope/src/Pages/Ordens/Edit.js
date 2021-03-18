@@ -150,8 +150,33 @@ const EditOrdem = () => {
                             </div>
 
                             <div style={{width:'100%', textAlign: 'center'}}>
-                                <button className="btn novo-item" style={{width: '150px'}} onClick={() => {
+                                <button className="btn novo-item" style={{width: '150px'}} onClick={(event) => {
+                                    event.preventDefault();
 
+                                    var body = estoqueItensUtilizado.map(it => (
+                                        {
+                                            "id_os": parseInt(id),
+                                            "id_materia_prima": it.id,
+                                            "quantidade": it.Quantidade,
+                                            "valor": it.valor_venda
+                                        }
+                                    ))
+
+                                    console.log('boduy', estoqueItensUtilizado)
+                                    console.log('boduy', body)
+
+                                    fetch(`/add/materiasprimas/ordemservico/${id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                          'Accept': 'application/json',
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(body)
+                                    },
+                                        ).then(res => res.json()).then(data => {
+                                        console.log('response', data)
+                                      });
+                                      
                                 }}>Salvar itens</button>
                             </div>
                         </div>
