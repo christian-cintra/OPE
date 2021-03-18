@@ -17,7 +17,7 @@ const Header = () => {
                     <ul className="navbar-nav mr-auto">
 
                         <li className="nav-item">
-                            <a id="ordens" className="nav-link" href="http://127.0.0.1:5000/OrdensServico">Ordens de Serviço</a>
+                            <a id="ordens" className="nav-link" href="/">Ordens de Serviço</a>
                         </li>
 
                         <li className="nav-item">
