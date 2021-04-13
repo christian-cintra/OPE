@@ -153,6 +153,11 @@ def AddMateriasPrimasNaOrdemServico(id):
     print('fim')
     return ""
 
+@app.route('/Servicos')
+def Servicos():
+    query_result = engine.execute('select * from Servico')
+
+    return render_template('listagemServicos.html', query_result=query_result)
 
 @app.route('/Estoque')
 def Estoque():
@@ -192,9 +197,8 @@ def add(table):
             engine.execute(sql)
             flash('Matéria Prima cadastrada com sucesso.')
             print(request.form)
-
             return render_template(table+'_edit.html', method="POST", row={})
-
+        
         elif table == "Ordem_S":
             table = "Ordem_S"
             dt = request.form['detalhes']
@@ -207,6 +211,14 @@ def add(table):
             engine.execute(sql)
             flash('Ordem de Serviço cadastrada com sucesso.')
             return render_template(table+'_add.html')
+        
+        elif table == "Servico":
+            nomeServico = request.form['nomeServico']
+            sql = "insert into Servico values ('{}')".format(nomeServico)
+            engine.execute(sql)
+            flash('Serviço cadastrado com sucesso.')
+            print(request.form)
+        
         elif table == "":
             pass
 
@@ -285,6 +297,10 @@ def delete(table, id):
             sql = 'delete from OrdensdeServico where id = {}'.format(id)
             engine.execute(sql)
 
+        elif table == "Servicos":
+            sql = 'delete from Servico where id = {}'.format(id)
+            engine.execute(sql)
+            
         elif table == "":
             pass
         return 'deleted'

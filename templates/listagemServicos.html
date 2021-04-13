@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %} Serviços {% endblock %}
+{% block navitem %}
+<!-- <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Filtro
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="#">Quantidade</a>
+      <div class="dropdown-divider"></div>
+    </div>
+  </li> -->
+{% endblock %}
+{% block content %}
+
+<div class="flex header-container">
+  <h1 class="title">Servicos</h1>
+  <button type="button" class="btn novo-item" onclick="addfunction()">Novo Serviço</button>
+</div>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-primary" role="alert">
+    {{ msg }}
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<table class='table table-sm table-striped table-responsive-md'>
+    <thead>
+        <tr>
+            <th scope="col" style='text-align:center'>ID</th>
+            <th scope="col">Nome</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in query_result %}
+           <tr id={{row.id}}>
+              <td style='text-align:center'>{{row.id}}</td>
+              <td>{{row['Nome']}}</td>
+              <!-- <td><i class="fa fa-edit icon pointer" onclick='editfunction("{{row.id}}")'></i></td> -->
+              <td><i class="fa fa-remove icon pointer" onclick='deletefunction("{{row.id}}")'></i></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+<script type=text/javascript>
+    // function editfunction(id) {
+    //     window.location.href = '/edit/Servico/'+id;
+    // }
+
+    function addfunction() {
+        console.log('entry');
+        window.location.href = '/add/Servico';
+    }
+
+    function deletefunction(id){
+        if (confirm('Deseja realmente excluir este serviço?')) {
+            console.log('Thing was saved to the database.');
+            $.ajax({
+            url: '/delete/Servicos/'+id,
+            method: 'DELETE',
+            data: {
+                id:id
+            },
+            success: function(data) {
+                console.log('DELETED')
+                $('#'+id).remove()
+            } 
+        })
+        } 
+        else {
+        console.log('Thing was not saved to the database.');
+        }
+    }
+</script>
+{% endblock %}
