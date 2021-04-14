@@ -241,6 +241,11 @@ def edit(table, id):
         query_result = engine.execute(sql)
         for row in query_result:
             result = row
+    elif table == "Servicos":
+        sql = 'select * from Servico where id = {}'.format(id)
+        query_result = engine.execute(sql)
+        for row in query_result:
+            result = row    
 
     if request.method == 'POST':
         if table == "Mat_P":
@@ -269,6 +274,12 @@ def edit(table, id):
             query_result = engine.execute(sql)
             return redirect(url_for('OrdensServico'))
 
+        elif table == "Servicos":
+            nomeServico = request.form['nomeServico']
+            sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
+            query_result = engine.execute(sql)
+            return redirect(url_for('Servicos'))
+        
         elif table == "":
             pass
         flash('Registro alterado com sucesso')
@@ -300,7 +311,7 @@ def delete(table, id):
         elif table == "Servicos":
             sql = 'delete from Servico where id = {}'.format(id)
             engine.execute(sql)
-            
+
         elif table == "":
             pass
         return 'deleted'

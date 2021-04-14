@@ -40,7 +40,7 @@
            <tr id={{row.id}}>
               <td style='text-align:center'>{{row.id}}</td>
               <td>{{row['Nome']}}</td>
-              <!-- <td><i class="fa fa-edit icon pointer" onclick='editfunction("{{row.id}}")'></i></td> -->
+              <td><i class="fa fa-edit icon pointer" onclick='editfunction("{{row.id}}")'></i></td>
               <td><i class="fa fa-remove icon pointer" onclick='deletefunction("{{row.id}}")'></i></td>
             </tr>
         {% endfor %}
@@ -48,9 +48,9 @@
     </table>
 </div>
 <script type=text/javascript>
-    // function editfunction(id) {
-    //     window.location.href = '/edit/Servico/'+id;
-    // }
+    function editfunction(id) {
+        window.location.href = '/edit/Servicos/'+id;
+    }
 
     function addfunction() {
         console.log('entry');

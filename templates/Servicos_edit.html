@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %} Estoque {% endblock %}
+{% block content %}
+<div class="flex header-container">
+    <h1 class="title">Alterar - Ordem de Serviço</h1>
+</div>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  {% for msg in messages %}
+    <div role="alert">
+      <h5 class="h5 mb-0 font-weight-normal">{{ msg }}</h5>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endwith %}
+
+    <form method="POST" action="/edit/Servicos/{{ row['id'] }}">
+       
+        <div class="form-group">
+            <label>Nome:</label>
+            <input id='nomeServico' name='nomeServico' type='text' value ='{{ row.Nome }}' size="80" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <div style="width: 100%; text-align: center">
+                <button id="submit" type="submit" class="btn novo-item" style='width: 200px'>Salvar</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
