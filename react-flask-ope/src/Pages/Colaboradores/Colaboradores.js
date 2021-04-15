@@ -12,9 +12,9 @@ const Colaboradores = () => {
           });
     }, []);
 
-    // const addFunction = () => {
-    //     window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
-    // }
+    const addFunction = () => {
+        window.open(`/usuarios/adicionar`);
+    }
 
     // const deleteFunction = (id) => {
     //     if (window.confirm('Deseja realmente excluir esse registro?')) {
@@ -30,9 +30,9 @@ const Colaboradores = () => {
 
     return (
             <main>
-                <div class="flex header-container">
-                    <h1 class="title">Colaboradores</h1>
-                    {/* <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button> */}
+                <div className="flex header-container">
+                    <h1 className="title">Colaboradores</h1>
+                    <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
                 </div>
 
                 {users.map((item) => (
@@ -43,7 +43,7 @@ const Colaboradores = () => {
 
                                 <div className="img-container">
                                     <img className="img-avatar" src={avatar} />
-                                    {item.Id}
+                                    <b>{item.Id}</b>
                                 </div>
 
                                <div>

@@ -170,6 +170,12 @@ def Estoque():
 
     return render_template('estoque.html', query_result=query_result)
 
+@app.route('/Usuarios')
+def Usuarios():
+    query_result = engine.execute('select * from Usuario')
+
+    return render_template('usuarios.html', query_result=query_result)
+
 @app.route('/OrdensServico')
 def OrdensServico():
     query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
@@ -229,9 +235,10 @@ def add(table):
             login = request.form['Login']
             senha = request.form['senha']
             nome = request.form['nome']
-            sql = "insert into OrdensdeServico values ('{}', {}, {})".format(
+            sql = "insert into Usuario values ('{}', '{}', '{}')".format(
                 login, senha, nome)
             engine.execute(sql)
+            return redirect('http://localhost:3000/usuarios')
         
         elif table == "":
             pass
@@ -239,7 +246,7 @@ def add(table):
     if table == "Mat_P":
         return render_template(table+'_edit.html', method="POST", row={})
     else:
-        return render_template(table+'_add.html')
+        return
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
