@@ -6,6 +6,7 @@ import EditOrdem from './Pages/Ordens/Edit';
 import Estoque from './Pages/Estoque/Estoque';
 import EditEstoque from './Pages/Estoque/Edit';
 import Ordens from './Pages/Ordens/Ordens';
+import Servicos from './Pages/Servicos/Servicos';
 
 function App() {
   const [placeholder, setPlaceholder] = useState('Hi');
@@ -21,6 +22,7 @@ function App() {
           <Route path="/estoque" exact component={Estoque}/>
           <Route path="/ordemservico/edit/:id" exact component={EditOrdem}/>
           <Route path="/estoque/edit/:id" exact component={EditEstoque}/>
+          <Route path="/Servicos" exact component={EditEstoque}/>
      </BrowserRouter>
   );
 }
