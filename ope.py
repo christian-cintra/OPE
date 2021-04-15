@@ -222,7 +222,7 @@ def add(table):
                 dt, vl, vs, fs, st, responsavel)
             engine.execute(sql)
             flash('Ordem de Serviço cadastrada com sucesso.')
-            return render_template(table+'_add.html')
+            return redirect('http://localhost:3000/')
         
         elif table == "Servico":
             nomeServico = request.form['nomeServico']
@@ -246,7 +246,7 @@ def add(table):
     if table == "Mat_P":
         return render_template(table+'_edit.html', method="POST", row={})
     else:
-        return
+        return render_template(table+'_add.html')
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
@@ -294,7 +294,7 @@ def edit(table, id):
             sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
                 dt, vl, vs, fs, st, re, id)
             query_result = engine.execute(sql)
-            return redirect(url_for('OrdensServico'))
+            return redirect('http://localhost:3000')
 
         elif table == "Servicos":
             nomeServico = request.form['nomeServico']

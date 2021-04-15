@@ -22,7 +22,7 @@ const Ordens = () => {
     }
 
     const addFunction = () => {
-        window.location.href = 'http://127.0.0.1:5000/add/Ordem_S';
+        window.location.href = '/ordemservico/adicionar';
     }
 
     const deleteFunction = (id, type) => {

@@ -7,10 +7,10 @@ const OrdemCard = ({row, editFunction, deleteFunction}) => {
             <div class="card" style={{width: '18em'}} key={row.id} id={row.id}>
                 <div class="card-body">
                     <h5 class="card-title">{row.detalhes}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">{row.valorPecas}</h6>
-                    <p class="card-text">Peças: {row.valorPecas}</p>
-                    <p class="card-text">Serviço: {row.valorServico}</p>
-                    <p class="card-text">Pagamento: {row.statusPagamento}</p>
+                    <h6 class="card-subtitle mb-2 text-muted">R$: {row.valorPecas + row.valorServico}</h6>
+                    <p class="card-text">Peças:&nbsp; R${row.valorPecas}</p>
+                    <p class="card-text">Serviço:&nbsp; R${row.valorServico}</p>
+                    <p class="card-text">Pagamento:&nbsp; {row.statusPagamento}</p>
 
                     <div className="d-flex ml-0">
                         <b class="card-text primary-color">Responsável:&nbsp;</b>

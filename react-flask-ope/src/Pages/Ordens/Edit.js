@@ -5,13 +5,15 @@ const EditOrdem = () => {
     const [estoqueItensUtilizado, setEstoqueItensUtilizado] = useState([]);
 
     const [estoque, setEstoque] = useState([]);
-    const [id, setId] = useState([]);
+    const [id, setId] = useState(null);
     const [colaboradores, setColaboradores] = useState([]);
 
     useEffect(() => {
         console.log('ordem')
         var url = window.location.href;
-        setId(url.substring(url.lastIndexOf('/') + 1));
+        const valueId = url.substring(url.lastIndexOf('/') + 1);
+        if(valueId != 'adicionar')
+            setId(valueId);
 
         // pegando informações da ordem de serviço
         fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
@@ -71,10 +73,6 @@ const EditOrdem = () => {
 
     }, []);
 
-    const addFunction = () => {
-        window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
-    }
-
     const itemEstoque = (item) => {
         if(estoqueItensUtilizado.findIndex(i => i.id == item.id)){
             return <></>
@@ -88,12 +86,11 @@ const EditOrdem = () => {
             <main>
                 <div className="flex header-container">
                     <h1 className="title">Editar - Ordem de serviço</h1>
-                    <button type="button" className="btn novo-item" onClick={addFunction}>Novo item</button>
                 </div>
 
                 {/* action={{ '/add/Mat_P' if method == 'POST' else '/edit/Mat_P/' ~ row.id }} */}
                 <form 
-                action={`/edit/Ordem_S/${item.id}`}
+                action={id == null ? `/add/Ordem_S` : `/edit/Ordem_S/${item.id}`}
                     method="POST">
 
                     <div className="form-group">
