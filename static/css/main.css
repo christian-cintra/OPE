@@ -91,6 +91,10 @@ main {
     border-color: #0216ad;
 }
 
+.d-flex {
+    display: flex;    
+}
+
 .flex{
     display: flex;    
     margin-bottom: 30px;

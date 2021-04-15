@@ -60,9 +60,15 @@ def EstoqueAPI():
     print('query_result', query_result)
     return jsonify({'result': [dict(row) for row in query_result]})
 
+@app.route('/api/usuarios')
+def UsuariosAPI():
+    query_result = engine.execute('select * from Usuario')
+    print('query_result', query_result)
+    return jsonify({'result': [dict(row) for row in query_result]})
+
 @app.route('/api/ordensdeservico')
 def OrdensDeServicoAPI():
-    data = engine.execute('select * from OrdensdeServico')
+    data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
     return jsonify({'result': [dict(row) for row in data]})
 
@@ -78,7 +84,7 @@ def GetItems(table, id):
             result = row
             
     elif table == "Ordem_S":
-        sql = 'select * from OrdensdeServico where id = {}'.format(id)
+        sql = 'select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.responsavel_id, os.responsavel_id, Usuario.nome AS responsavelNome from OrdensdeServico AS os	LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id  where os.id =  {}'.format(id)
         query_result = engine.execute(sql)
 
         for row in query_result:
@@ -150,7 +156,6 @@ def AddMateriasPrimasNaOrdemServico(id):
             sql = "insert into MateriasOrdemDeServico values ('{}', {}, {}, {})".format(id_os, id_materia_prima, Quantidade, valor)
             engine.execute(sql)
 
-    print('fim')
     return ""
 
 @app.route('/Servicos')
@@ -164,6 +169,12 @@ def Estoque():
     query_result = engine.execute('select * from MateriaPrima')
 
     return render_template('estoque.html', query_result=query_result)
+
+@app.route('/Usuarios')
+def Usuarios():
+    query_result = engine.execute('select * from Usuario')
+
+    return render_template('usuarios.html', query_result=query_result)
 
 @app.route('/OrdensServico')
 def OrdensServico():
@@ -206,11 +217,12 @@ def add(table):
             vs = request.form['valorServico']
             fs = request.form['fase']
             st = request.form['statusPagamento']
-            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {})".format(
-                dt, vl, vs, fs, st)
+            responsavel = request.form['responsavel_id']
+            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {})".format(
+                dt, vl, vs, fs, st, responsavel)
             engine.execute(sql)
             flash('Ordem de Serviço cadastrada com sucesso.')
-            return render_template(table+'_add.html')
+            return redirect('http://localhost:3000/')
         
         elif table == "Servico":
             nomeServico = request.form['nomeServico']
@@ -218,6 +230,15 @@ def add(table):
             engine.execute(sql)
             flash('Serviço cadastrado com sucesso.')
             print(request.form)
+
+        elif table == "Usuario":
+            login = request.form['Login']
+            senha = request.form['senha']
+            nome = request.form['nome']
+            sql = "insert into Usuario values ('{}', '{}', '{}')".format(
+                login, senha, nome)
+            engine.execute(sql)
+            return redirect('http://localhost:3000/usuarios')
         
         elif table == "":
             pass
@@ -269,17 +290,18 @@ def edit(table, id):
             vs = request.form['valorServico']
             fs = request.form['fase']
             st = request.form['statusPagamento']
-            sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {} where id = {}".format(
-                dt, vl, vs, fs, st, id)
+            re = request.form['responsavel_id']
+            sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
+                dt, vl, vs, fs, st, re, id)
             query_result = engine.execute(sql)
-            return redirect(url_for('OrdensServico'))
+            return redirect('http://localhost:3000')
 
         elif table == "Servicos":
             nomeServico = request.form['nomeServico']
             sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
             query_result = engine.execute(sql)
             return redirect(url_for('Servicos'))
-        
+
         elif table == "":
             pass
         flash('Registro alterado com sucesso')

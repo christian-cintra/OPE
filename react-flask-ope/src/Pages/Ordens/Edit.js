@@ -5,12 +5,15 @@ const EditOrdem = () => {
     const [estoqueItensUtilizado, setEstoqueItensUtilizado] = useState([]);
 
     const [estoque, setEstoque] = useState([]);
-    const [id, setId] = useState([]);
+    const [id, setId] = useState(null);
+    const [colaboradores, setColaboradores] = useState([]);
 
     useEffect(() => {
         console.log('ordem')
         var url = window.location.href;
-        setId(url.substring(url.lastIndexOf('/') + 1));
+        const valueId = url.substring(url.lastIndexOf('/') + 1);
+        if(valueId != 'adicionar')
+            setId(valueId);
 
         // pegando informações da ordem de serviço
         fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
@@ -43,8 +46,6 @@ const EditOrdem = () => {
             data.result.forEach(esto => {
 
                 dataResult.results.forEach(da => {
-                    console.log('eeee', materias)
-                    // var item = materias.find(i => i.id == da.id_materia_prima);
                     if(esto.id == da.id_materia_prima){
                         var mat = esto;
                         mat.Quantidade = da.Quantidade
@@ -54,12 +55,10 @@ const EditOrdem = () => {
 
                     }
                 });
-            });     
-            console.log('dad', dados)       
+            });        
             setEstoqueItensUtilizado(dados);
 
             dados.map((d) => {
-                console.log(d)
                 data.result = data.result.filter((e) => parseInt(e.id) != parseInt(d.id));
             })
 
@@ -67,17 +66,18 @@ const EditOrdem = () => {
         });
           });
 
-    }, []);
+          fetch('/api/usuarios').then(res => res.json()).then(data => {
+            console.log('usuarios', data)
+            setColaboradores(data.result);
+          });
 
-    const addFunction = () => {
-        window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
-    }
+    }, []);
 
     const itemEstoque = (item) => {
         if(estoqueItensUtilizado.findIndex(i => i.id == item.id)){
             return <></>
         }
-        return (<button key={item.id} type="button" class="list-group-item list-group-item-action" onClick={() => {
+        return (<button key={item.id} type="button" className="list-group-item list-group-item-action" onClick={() => {
             return setEstoqueItensUtilizado([...estoqueItensUtilizado, item])
         }}>{item.nome}</button>)
     }
@@ -86,12 +86,11 @@ const EditOrdem = () => {
             <main>
                 <div className="flex header-container">
                     <h1 className="title">Editar - Ordem de serviço</h1>
-                    <button type="button" className="btn novo-item" onClick={addFunction}>Novo item</button>
                 </div>
 
                 {/* action={{ '/add/Mat_P' if method == 'POST' else '/edit/Mat_P/' ~ row.id }} */}
                 <form 
-                action={`/edit/Ordem_S/${item.id}`}
+                action={id == null ? `/add/Ordem_S` : `/edit/Ordem_S/${item.id}`}
                     method="POST">
 
                     <div className="form-group">
@@ -111,7 +110,8 @@ const EditOrdem = () => {
 
                     <div className="form-group">
                     <label>Status da OS:</label>
-                        <select name="fase" id="fase"  onChange={(event) => setItem({...item, fase: event.target.value})}>
+                        <br/>
+                        <select name="fase" id="fase" className="form-select" onChange={(event) => setItem({...item, fase: event.target.value})} value={item.fase} defaultValue={item.fase}>
                         <option value={1}>1 - Solicitada</option>
                         <option value={2}>2 - Agendamento</option>
                         <option value={3}>3 - Agendada</option>
@@ -121,10 +121,24 @@ const EditOrdem = () => {
 
                     <div className="form-group">
                         <label>Status do Pagamento:</label>
-                        <select name="statusPagamento" id="statusPagamento" onChange={(event) => setItem({...item, statusPagamento: event.target.value})}>
+                        <br/>
+                        <select className="form-select" name="statusPagamento" id="statusPagamento" defaultValue={item.statusPagamento} onChange={(event) => setItem({...item, statusPagamento: event.target.value})} value={item.statusPagamento}>
                             <option value="1">1 - Não paga</option>
                             <option value="2">2 - Paga 1ª Parcela</option>
                             <option value="3">3 - Paga 2ª Parcela</option>
+                        </select>  
+                    </div>
+
+                    <div className="form-group">
+                        <label>Profissional responsável:</label>
+                        <br/>
+                        <select className="form-select" value={item.responsavel_id} value={item.responsavel_id} name="responsavel_id" id="responsavel_id" onChange={(event) => {
+                            setItem({...item, responsavel_id: event.target.value})
+                        }}>
+                            <option disabled>Selecione</option>
+                            {colaboradores.map(colaborador => (
+                                <option key={colaborador.Id} value={colaborador.Id}>{colaborador.nome}</option>
+                            ))}
                         </select>  
                     </div>
 
@@ -143,43 +157,63 @@ const EditOrdem = () => {
                             <h3>Matérias Primas requeridas</h3>
                             <div>
                             {estoqueItensUtilizado.map((item) => (
-                                    <div className="flex">
-                                        <div key={item?.id} class="list-group-item">
-                                            <span><b>{item?.Quantidade}</b></span>
-                                            <span> - </span>
-                                            <span>{item?.nome}</span>
-                                        </div>
-                                            <div>
+                                    <div className="d-flex" key={item.id}>
+
+                                        <div>
                                             <span className="add-option" onClick={() => {
 
+                                                var quantidadeInvalida = false
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
+                                                        var itemEstoque = estoque.find((e) => e.id == item.id);
+                                                        
+
+                                                        if(item.Quantidade + 1 > itemEstoque.QtdeDisponivel){
+                                                            alert('Quantidade indisponível')
+                                                            quantidadeInvalida = true;
+                                                        }
                                                     materia.Quantidade = materia.Quantidade +1;
                                                     }
                                                     return materia;
                                                 })
-                                                return setEstoqueItensUtilizado(newList)
+                                                if(!quantidadeInvalida)
+                                                    return setEstoqueItensUtilizado(newList)
                                                 }}>+</span>
+
                                                 <span className="add-option" style={{marginLeft: '10px'}} onClick={() => {
                                                 const newList = estoqueItensUtilizado.map((materia) => {
+                                                    
                                                     if (materia.id === item.id) {
                                                         if(materia.Quantidade > 1){
 
                                                             materia.Quantidade = materia.Quantidade -1;
                                                             return materia;
+                                                        }else {
+                                                            var itensEstoque = [...estoque];
+                                                            var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+                                                            itemEstoque.show = true;
+                                                            setEstoque(itensEstoque)
                                                         }
                                                     }else{
                                                         return materia;
                                                     }
                                                     
                                                 })
-                                                console.log('newlist', newList)
                                                 return setEstoqueItensUtilizado(newList.filter(n => n != undefined))
                                                 }}>-</span>
                                             </div>
+
+
+                                        <div key={item?.id} className="list-group-item ml-15">
+                                            <span><b>{item?.Quantidade}</b></span>
+                                            <span> - </span>
+                                            <span className="ml-30">{item?.nome}</span>
+                                        </div>                                           
                                     </div>
                                 ))}
                             </div>
+
+                            <br/>
 
                             <div style={{width:'100%', textAlign: 'center'}}>
                                 <button className="btn novo-item" style={{width: '150px'}} onClick={(event) => {
@@ -190,13 +224,11 @@ const EditOrdem = () => {
                                             "id_os": parseInt(id),
                                             "id_materia_prima": it.id,
                                             "quantidade": it.Quantidade,
-                                            "valor": it.valor_venda
+                                            "valor": it.valor_venda,
+                                            "responsavel_id": it.responsavel_id
                                         }
                                     ))
-
-                                    console.log('boduy', estoqueItensUtilizado)
-                                    console.log('boduy', body)
-
+   
                                     fetch(`/add/materiasprimas/ordemservico/${id}`, {
                                         method: 'POST',
                                         headers: {
@@ -216,16 +248,24 @@ const EditOrdem = () => {
                         <div style={{maxWidth: '300px'}}>
                             <h5><b>Selecione as Matérias Primas necessárias</b></h5>
 
-                            <div class="list-group">
+                            <div className="list-group">
                                 {estoque.map((item) => (
-                                    (<button key={item.id} type="button" class="list-group-item list-group-item-action" onClick={() => {
-                                        setEstoque(estoque.filter((e) => e.id != item.id))
+                                    (item.show != false && <button key={item.id} type="button" className="list-group-item list-group-item-action" 
+                                    onClick={() => {
+                                        // escondendo itens selecionados da lista 
+                                        var itensEstoque = [...estoque];
+                                        var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+                                        itemEstoque.show = false;
+                                        
+                                        setEstoque(itensEstoque);
 
                                         var novoItem = {...item};
                                         novoItem.Quantidade = 1;
-                                        console.log('novo item', novoItem)
                                         return setEstoqueItensUtilizado([...estoqueItensUtilizado, novoItem])
-                                    }}>{item.nome}
+                                    }}>
+                                        <b>{item.QtdeDisponivel}-</b>
+                                        &nbsp;
+                                        <span>{item.nome}</span>
                                     </button>)
                                 ))}
                             </div>
