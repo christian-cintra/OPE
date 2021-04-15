@@ -4,6 +4,7 @@ import './App.css';
 import Header from './Components/Header';
 import EditOrdem from './Pages/Ordens/Edit';
 import Estoque from './Pages/Estoque/Estoque';
+import Colaboradores from './Pages/Colaboradores/Colaboradores';
 import EditEstoque from './Pages/Estoque/Edit';
 import Ordens from './Pages/Ordens/Ordens';
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/estoque" exact component={Estoque}/>
           <Route path="/ordemservico/edit/:id" exact component={EditOrdem}/>
           <Route path="/estoque/edit/:id" exact component={EditEstoque}/>
+          <Route path="/usuarios" exact component={Colaboradores}/>
      </BrowserRouter>
   );
 }
