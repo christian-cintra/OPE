@@ -60,6 +60,12 @@ def EstoqueAPI():
     print('query_result', query_result)
     return jsonify({'result': [dict(row) for row in query_result]})
 
+@app.route('/api/servicos')
+def ServicosAPI():
+    query_result = engine.execute('select * from Servico')
+    print('query_result', query_result)
+    return jsonify({'result': [dict(row) for row in query_result]})
+
 @app.route('/api/usuarios')
 def UsuariosAPI():
     query_result = engine.execute('select * from Usuario')
@@ -221,12 +227,13 @@ def add(table):
             table = "Ordem_S"
             dt = request.form['detalhes']
             vl = request.form['valorPecas']
+            servicoExecutado = request.form['servicoExecutado']
             vs = request.form['valorServico']
             fs = request.form['fase']
             st = request.form['statusPagamento']
             responsavel = request.form['responsavel_id']
-            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {})".format(
-                dt, vl, vs, fs, st, responsavel)
+            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {})".format(
+                dt, vl, vs, fs, st, responsavel, servicoExecutado)
             engine.execute(sql)
             flash('Ordem de Serviço cadastrada com sucesso.')
             return redirect('http://localhost:3000/')
