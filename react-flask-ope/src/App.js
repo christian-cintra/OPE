@@ -9,6 +9,7 @@ import AdicionarColaborador from './Pages/Colaboradores/Adicionar';
 import EditEstoque from './Pages/Estoque/Edit';
 import Ordens from './Pages/Ordens/Ordens';
 import Servicos from './Pages/Servicos/Servicos';
+import EditServicos from './Pages/Servicos/Edit.js';
 
 function App() {
   const [placeholder, setPlaceholder] = useState('Hi');
@@ -25,7 +26,8 @@ function App() {
           <Route path="/ordemservico/edit/:id" exact component={EditOrdem}/>
           <Route path="/ordemservico/adicionar" exact component={EditOrdem}/>
           <Route path="/estoque/edit/:id" exact component={EditEstoque}/>
-          <Route path="/Servicos" exact component={EditEstoque}/>
+          <Route path="/Servicos" exact component={Servicos}/>
+          <Route path="/Servicos/edit/:id" exact component={EditServicos}/>
           <Route path="/usuarios" exact component={Colaboradores}/>
           <Route path="/usuarios/adicionar" exact component={AdicionarColaborador}/>
      </BrowserRouter>

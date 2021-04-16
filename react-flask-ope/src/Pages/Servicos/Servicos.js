@@ -4,19 +4,19 @@ const Servicos = () => {
     const [estoque, setServicos] = useState([]);
 
     useEffect(() => {
-        fetch('/api/estoque').then(res => res.json()).then(data => {
-            console.log('estoque', data)
+        fetch('/api/servicos').then(res => res.json()).then(data => {
+            console.log('servicos', data)
             setServicos(data.result);
           });
     }, []);
 
     const addFunction = () => {
-        window.location.href = 'http://127.0.0.1:5000/Servicos';
+        window.location.href = 'http://127.0.0.1:5000/add/Servico';
     }
 
     const deleteFunction = (id) => {
         if (window.confirm('Deseja realmente excluir esse registro?')) {
-            fetch('/delete/Mat_P/' + id, {
+            fetch('/delete/Servico/' + id, {
             method: 'DELETE',
             })
             .then(res => res.text()) // or res.json()
@@ -35,29 +35,19 @@ const Servicos = () => {
 
                 <div>
                     <table class='table table-sm table-striped table-responsive-md'>
-                        <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">Quantidade</th>    
-                                <th scope="col">Nome</th>
-                                <th scope="col">Preço</th>
-                                <th scope="col">Cadastrado em</th>
-                                <th scope="col">Alterado em</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                        </tr>
+                    </thead>
                         <tbody>
                             {estoque.map((item) => (
                                 <tr id={item.id}>
-                                <td>{item.id}</td>
-                                <td>{item['QtdeDisponivel']}</td>
-                                <td>{item['nome']}</td>
-                                <td>{item['valor_venda']}</td>
-                                <td>{item['data_abastecimento']}</td>
-                                <td>{item['data_atualização']}</td>
+                                <td>{item['id']}</td>
+                                <td>{item['Nome']}</td>
                                 <td>
-                                    <i class="fa fa-edit icon pointer" onClick={() => (window.location = `http://127.0.0.1:5000/edit/Mat_P/${item.id}`)}></i>
+                                    <i class="fa fa-edit icon pointer" onClick={() => (window.location = `http://127.0.0.1:5000/edit/Servicos/${item.id}`)}></i>
                                 </td>
                                 <td>
                                     <i class="fa fa-remove icon pointer" onClick={() => deleteFunction(item.id)}></i>

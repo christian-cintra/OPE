@@ -29,7 +29,7 @@ const Header = () => {
                         </li>
 
                         <li className="nav-item">   
-                            <a id="servicos" className="nav-link disabled" href="#" tabIndex="-1" aria-disabled="true">Serviços</a>
+                            <a id="servicos" className="nav-link" href="/Servicos">Serviços</a>
                         </li>
                     
                     </ul>

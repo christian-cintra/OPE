@@ -25,9 +25,10 @@ const EditOrdem = () => {
                 id: data[0],
                 detalhes: data[1],
                 valorPecas: data[2],
-                valorServico: data[3],
-                fase: data[4],
-                statusPagamento: data[5]
+                tipoServico: data[3],
+                valorServico: data[4],
+                fase: data[5],
+                statusPagamento: data[6]
             }
             setItem(body);
         });
@@ -101,6 +102,17 @@ const EditOrdem = () => {
                     <div className="form-group">
                         <label>Preço das Peças:</label>
                         <input id='valorPecas' name='valorPecas' type='number' step="0.01" min="0" value={item.valorPecas} placeholder="Digite o valor das peças" size="80"  className="form-control" onChange={(event) => setItem({...item, valorPecas: event.target.value})}/>
+                    </div>
+
+                    <div className="form-group">
+                    <label>Serivço Executado:</label>
+                        <br/>
+                        <select name="servicoExecutado" id="servicoExecutado" className="form-select">
+                        <option value={1}>1 - Instalação de rede doméstica</option>
+                        <option value={2}>2 - Instalação de rede comercial</option>
+                        <option value={3}>3 - Reparo geral</option>
+                        <option value={4}>4 - Reparo de vazamento</option>
+                    </select>         
                     </div>
 
                     <div className="form-group">
