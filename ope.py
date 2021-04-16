@@ -78,6 +78,14 @@ def OrdensDeServicoAPI():
 
     return jsonify({'result': [dict(row) for row in data]})
 
+@app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
+def UpdteEstoqueItemCount(id, qntd):
+    print('table ', table)
+    print('id ', id)
+    sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
+    resp = jsonify(success=True)
+    return resp
+
 
 @app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def GetItems(table, id):
