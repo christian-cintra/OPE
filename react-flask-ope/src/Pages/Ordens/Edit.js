@@ -60,8 +60,15 @@ const EditOrdem = () => {
             setEstoqueItensUtilizado(dados);
 
             dados.map((d) => {
-                data.result = data.result.filter((e) => parseInt(e.id) != parseInt(d.id));
+                data.result = data.result.filter((e) => {
+                    if(parseInt(e.id) == parseInt(d.id)){
+                        e.show = false;
+                    }
+                    return e;
+                });
             })
+
+            console.log('estoque', data.result)
 
             setEstoque(data.result)
         });
@@ -192,8 +199,14 @@ const EditOrdem = () => {
                                                         }else {
                                                             var itensEstoque = [...estoque];
                                                             var itemEstoque = itensEstoque.find((e) => e.id == item.id);
-                                                            itemEstoque.show = true;
-                                                            setEstoque(itensEstoque)
+
+                                                            if(itemEstoque != undefined){                                                                
+                                                                itemEstoque.show = true;
+                                                                setEstoque(itensEstoque)
+                                                            }else {
+                                                                // TODO
+                                                            }
+                                                            console.log('item estoque', item)
                                                         }
                                                     }else{
                                                         return materia;
