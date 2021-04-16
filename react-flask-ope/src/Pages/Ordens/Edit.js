@@ -14,6 +14,7 @@ const EditOrdem = () => {
         const valueId = url.substring(url.lastIndexOf('/') + 1);
         if(valueId != 'adicionar')
             setId(valueId);
+            
 
         // pegando informações da ordem de serviço
         fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {

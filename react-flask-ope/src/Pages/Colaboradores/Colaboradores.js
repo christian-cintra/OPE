@@ -6,6 +6,7 @@ const Colaboradores = () => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
+        console.log('use effect')
         fetch('/api/usuarios').then(res => res.json()).then(data => {
             console.log('usuarios', data)
             setUsers(data.result);
@@ -46,13 +47,18 @@ const Colaboradores = () => {
                                     <b>{item.Id}</b>
                                 </div>
 
-                               <div>
-                                    <div className="d-flex">
-                                        <b>Nome:</b>&nbsp;<span>{item['nome']}</span>
-                                    </div>
+                               <div className="flex w-100">
+                                    <div>
+                                        <div className="d-flex">
+                                            <b>Nome:</b>&nbsp;<span>{item['nome']}</span>
+                                        </div>
 
-                                    <div className="d-flex">
-                                        <b>E-mail:</b>&nbsp;<span>{item['Login']}</span>
+                                        <div className="d-flex">
+                                            <b>E-mail:</b>&nbsp;<span>{item['Login']}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a href={`/usuarios` + `/edit/` +item.Id}>Editar</a>
                                     </div>
                                </div>
 

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
   
-const EditOrdem = () => {
+const EditColaborador = () => {
     const [item, setItem] = useState({});
     const [id, setId] = useState(null);
 
     useEffect(() => {
-        console.log('ordem')
         var url = window.location.href;
 
         const valueId = url.substring(url.lastIndexOf('/') + 1);
+
+        console.log('valueId', valueId)
         if(valueId != 'adicionar')
             setId(valueId);
         console.log('ids', id)
@@ -16,18 +17,16 @@ const EditOrdem = () => {
 
 
         // pegando informações da ordem de serviço
-        fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
+        fetch(`/api/usuarios/${valueId}`).then(res => res.json()).then(data => {
             console.log('estoque', data)
 
             data = data.results;
 
             var body = {
-                id: data[0],
-                detalhes: data[1],
-                valorPecas: data[2],
-                valorServico: data[3],
-                fase: data[4],
-                statusPagamento: data[5]
+                Id: data[0].Id,
+                Login: data[0].Login,
+                nome: data[0].nome,
+                senha: data[0].senha
             }
             setItem(body);
         });
@@ -42,7 +41,7 @@ const EditOrdem = () => {
 
                 {/* action={{ '/add/Mat_P' if method == 'POST' else '/edit/Mat_P/' ~ row.id }} */}
                 <form 
-                action={id == null ? `/add/Usuario` : `/edit/Ordem_S/${item.id}`}
+                action={id == null ? `/add/Usuario` : `/edit/Usuario/${item.Id}`}
                     method="POST">
 
                     <div className="form-group">
@@ -72,4 +71,4 @@ const EditOrdem = () => {
             </main>
     )
 }
-export default EditOrdem;
+export default EditColaborador;
