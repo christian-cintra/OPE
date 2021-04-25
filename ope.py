@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import timedelta, datetime
@@ -14,6 +14,7 @@ engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, {})
 app.config['SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc:///?odbc_connect=%s" % params
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
+app.permanent_session_lifetime = timedelta(minutes=15)
 app.debug = True
 
 class Usuario(db.Model):
@@ -37,11 +38,27 @@ def say_hello_world():
 def rota_Raiz():
     return redirect(url_for('login'))
 
+@app.before_request
+def before_request():
+    g.user = None
+    if 'user' in session:
+        g.user = session['user']
+        return print('passei')
+    return print('n passei')
+    print(session)
+
+def checaSession(user):
+    if 'user' in session:
+        return True
+    return False
+    
+    
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     classeFlash = 'alert alert-success'
     if request.method == 'POST':
-        global login
+        session.pop('user', None)
         login = request.form['email']
         senha = request.form['password']
         user = Usuario.query.filter_by(login=login, senha=senha).first()
@@ -49,127 +66,126 @@ def login():
             flash('Incorrect email or password.')
             classeFlash = 'alert alert-danger'
         else:
-            session[login] = login    
+            session['user'] = login
             return redirect(url_for('Estoque'))
     return render_template('index.html', classeFlash=classeFlash)            
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return 'tchau'
-
-def checaSession(user):
-    if user in session:
-        return True
-
-    print('oi')
+    flash('You have logged out')
     return redirect(url_for('login'))
+
+
 
 @app.route('/api/estoque')
 def EstoqueAPI():
-    if checaSession:
+    if checaSession(g.user):
         query_result = engine.execute('select * from MateriaPrima')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
-    else:
-        return redirect(url_for('login')) 
+    return redirect(url_for('login'))
 
 @app.route('/api/estoque/ordenar')
 def EstoqueFiltroAPI():
-    # if 'user' in session:
-    query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
-    print('query_result', query_result)
-    return jsonify({'result': [dict(row) for row in query_result]})
-    # else:
-    #     return render_template('index.html', classeFlash=classeFlash)  
+    if checaSession(g.user):
+        query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
+        print('query_result', query_result)
+        return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
+
+@app.route('/api/estoque/<filtro>')
+def FiltroEstoqueAPI(filtro):
+    if checaSession(g.user):
+        sql = ("select * from MateriaPrima WHERE nome like('%{}%')").format(filtro)
+        data = engine.execute(sql)
+        return jsonify({'result': [dict(row) for row in data]})
+    return redirect(url_for('login'))
 
 @app.route('/api/servicos')
 def ServicosAPI():
-    if 'user' in session:
+    if checaSession(g.user):
         query_result = engine.execute('select * from Servico')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 @app.route('/api/usuarios')
 def UsuariosAPI():
-    if 'user' in session:
+    if checaSession(g.user):
         query_result = engine.execute('select * from Usuario')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
 
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
-    # if 'user' in session:
-    data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+    if checaSession(g.user):
+        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
-    return jsonify({'result': [dict(row) for row in data]})
-    # else:
-    #     return render_template('index.html', classeFlash=classeFlash)  
+        return jsonify({'result': [dict(row) for row in data]})
 
+    return redirect(url_for('login'))
 
 @app.route('/api/ordensdeservico/<filtro>', methods=['POST'])
 def FiltroOrdensDeServicoAPI(filtro):
-    # if 'user' in session:
+    if checaSession(g.user):
 
 
-    dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
+        dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
 
-    filtros = [
-        {
-            'campo': 'statusPagamento',
-            'valor': 1
-        }
-    ]
+        filtros = [
+            {
+                'campo': 'statusPagamento',
+                'valor': 1
+            }
+        ]
 
-    # sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+        # sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
-    query = ''
-    print('****************************************************')
-    print(filtros)
-    for i in range(0, 1):
-        filtros[i]
-        print('************************')
-        if(filtros[i]['campo'] == 'statusPagamento'):
-            # query = 'WHERE statusPagamento = ' + filtros[i]['valor']
-            sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format('statusPagamento', filtros[i]['valor'])
-            print('----------------------------------------------------------')
-            # print(query)
+        query = ''
+        print('****************************************************')
+        print(filtros)
+        for i in range(0, 1):
+            filtros[i]
+            print('************************')
+            if(filtros[i]['campo'] == 'statusPagamento'):
+                # query = 'WHERE statusPagamento = ' + filtros[i]['valor']
+                sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format('statusPagamento', filtros[i]['valor'])
+                print('----------------------------------------------------------')
+                # print(query)
 
-            data = engine.execute(sql + query)
-            return jsonify({'result': [dict(row) for row in data]})
+                data = engine.execute(sql + query)
+                return jsonify({'result': [dict(row) for row in data]})
 
-    # for i in dictFiltros:
-    #     for j in dictFiltros[i]:
-    #         if filtro == dictFiltros[i][j]:
-    #             campo = dictFiltros[i]['0']
-    #             print('*************************************************************************************************')
-    #             print('campo',campo)
-    #             # campo = 'fase'
-    #             sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
-    #             print(sql)
-    #             data = engine.execute(sql)
-    #             return jsonify({'result': [dict(row) for row in data]})
+        # for i in dictFiltros:
+        #     for j in dictFiltros[i]:
+        #         if filtro == dictFiltros[i][j]:
+        #             campo = dictFiltros[i]['0']
+        #             print('*************************************************************************************************')
+        #             print('campo',campo)
+        #             # campo = 'fase'
+        #             sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
+        #             print(sql)
+        #             data = engine.execute(sql)
+        #             return jsonify({'result': [dict(row) for row in data]})
 
-    return 'filtro inválido'
-    # else:
-    #     return render_template('index.html', classeFlash=classeFlash)  
+        return 'filtro inválido'
+    return redirect(url_for('login'))
 
 @app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
 def UpdteEstoqueItemCount(id, qntd):
-    # if 'user' in session:
-    print('table ', table)
-    print('id ', id)
-    sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
-    resp = jsonify(success=True)
-    return resp
-    # else:
-    #     return render_template('index.html', classeFlash=classeFlash)  
+    if checaSession(g.user):
+        print('table ', table)
+        print('id ', id)
+        sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
+        resp = jsonify(success=True)
+        return resp
+    return redirect(url_for('login'))
 
 @app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def GetItems(table, id):
-    if 'user' in session:
+    if checaSession(g.user):
         print('table ', table)
         print('id ', id)
         if table == "Mat_P":
@@ -187,33 +203,30 @@ def GetItems(table, id):
 
         results = [str(row) for row in result]
         return jsonify({'results': results})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 @app.route('/api/materiasprimas/<int:id>', methods=['GET'])
 def GetMateriasPrimasPordemServico(id):
-    if 'user' in session:
+    if checaSession(g.user):
         sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
         query_result = engine.execute(sql)
 
         return jsonify({'results': [dict(row) for row in query_result]})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 @app.route('/api/usuarios/<int:id>', methods=['GET'])
 def GetColaborador(id):
-    if 'user' in session:
+    if checaSession(g.user):
         sql = 'select * from Usuario where id = {}'.format(id)
         query_result = engine.execute(sql)
 
         return jsonify({'results': [dict(row) for row in query_result]})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 
 @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
 def AddMateriasPrimasNaOrdemServico(id):
-    if 'user' in session:
+    if checaSession(g.user):
         # body = request.args("lista")
         # print('body', request)
         data = request.get_json()
@@ -268,40 +281,38 @@ def AddMateriasPrimasNaOrdemServico(id):
                 engine.execute(sql)
 
         return ""
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 @app.route('/Servicos')
 def Servicos():
-    if 'user' in session:
+    if checaSession(g.user):
         query_result = engine.execute('select * from Servico')
 
         return render_template('listagemServicos.html', query_result=query_result)
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
+
 
 @app.route('/Estoque')
 def Estoque():
-    print('session', session)
-    if 'user' in session:
+    if checaSession(g.user):
         query_result = engine.execute('select * from MateriaPrima')
 
         return render_template('estoque.html', query_result=query_result)
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
+
 
 @app.route('/Usuarios')
 def Usuarios():
-    if 'user' in session:
+    if checaSession(g.user):
         query_result = engine.execute('select * from Usuario')
 
         return render_template('usuarios.html', query_result=query_result)
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
+
 
 @app.route('/OrdensServico')
 def OrdensServico():
-    if 'user' in session:
+    if checaSession(g.user):
         query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
 
         query_agendadas = engine.execute('select * from OrdensdeServico where fase = 3')
@@ -315,12 +326,12 @@ def OrdensServico():
         }
 
         return render_template('ordens.html', query_result=results)
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
+
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
-    if 'user' in session:
+    if checaSession(g.user):
         print('register', request.form)
         if request.method == 'POST':
             if table == "Mat_P":
@@ -375,12 +386,12 @@ def add(table):
             return render_template(table+'_edit.html', method="POST", row={})
         else:
             return render_template(table+'_add.html')
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
+
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
-    if 'user' in session:
+    if checaSession(g.user):
         print('edit')
         print(request.method)
         if table == "Mat_P":
@@ -459,13 +470,12 @@ def edit(table, id):
             
         else:
             return render_template(table+'_edit.html', row=result)
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 
 @app.route('/delete/<table>/<int:id>', methods=['DELETE'])
 def delete(table, id):
-    if 'user' in session:
+    if checaSession(g.user):
         if request.method == 'DELETE':
             if table == "Mat_P":
                 sql = 'delete from materiaPrima where id = {}'.format(id)
@@ -482,8 +492,7 @@ def delete(table, id):
             elif table == "":
                 pass
             return 'deleted'
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
