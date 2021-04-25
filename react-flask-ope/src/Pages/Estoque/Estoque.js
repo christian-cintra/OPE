@@ -10,6 +10,13 @@ const Estoque = () => {
           });
     }, []);
 
+    const ordenarEstoque = () => {
+        fetch('/api/estoque/ordenar').then(res => res.json()).then(data => {
+            console.log('estoque', data)
+            setEstoque(data.result);
+            });
+    }
+
     const addFunction = () => {
         window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
     }
@@ -27,11 +34,12 @@ const Estoque = () => {
     }
 
     return (
-            <main>
-                <div class="flex header-container">
-                    <h1 class="title">Estoque</h1>
-                    <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
-                </div>
+        <main>
+            <div class="flex header-container">
+                <h1 class="title">Estoque</h1>
+                <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
+                <button type="button" class="btn novo-item" onClick={ordenarEstoque}>Ordenar itens</button>
+            </div>
 
                 <div>
                     <table class='table table-sm table-striped table-responsive-md'>

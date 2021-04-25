@@ -39,9 +39,9 @@ def rota_Raiz():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    global loggedUser
     classeFlash = 'alert alert-success'
     if request.method == 'POST':
+        global login
         login = request.form['email']
         senha = request.form['password']
         user = Usuario.query.filter_by(login=login, senha=senha).first()
@@ -49,40 +49,41 @@ def login():
             flash('Incorrect email or password.')
             classeFlash = 'alert alert-danger'
         else:
-            loggedUser = user.nome
-            session[loggedUser] = loggedUser    
+            session[login] = login    
             return redirect(url_for('Estoque'))
     return render_template('index.html', classeFlash=classeFlash)            
 
 @app.route('/logout')
 def logout():
-    session.pop('user', none)
+    session.pop('user', None)
+    return 'tchau'
 
 def checaSession(user):
     if user in session:
         return True
+    return redirect(url_for('login'))
 
 @app.route('/api/estoque')
 def EstoqueAPI():
-    if checaSession(loggedUser):
+    if checaSession:
         query_result = engine.execute('select * from MateriaPrima')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
     else:
-        return render_template('index.html', classeFlash=classeFlash)   
+        return redirect(url_for('login')) 
 
 @app.route('/api/estoque/ordenar')
 def EstoqueFiltroAPI():
-    if checaSession(loggedUser):
-        query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
-        print('query_result', query_result)
-        return jsonify({'result': [dict(row) for row in query_result]})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    # if 'user' in session:
+    query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
+    print('query_result', query_result)
+    return jsonify({'result': [dict(row) for row in query_result]})
+    # else:
+    #     return render_template('index.html', classeFlash=classeFlash)  
 
 @app.route('/api/servicos')
 def ServicosAPI():
-    if checaSession(loggedUser):
+    if 'user' in session:
         query_result = engine.execute('select * from Servico')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
@@ -91,14 +92,14 @@ def ServicosAPI():
 
 @app.route('/api/usuarios')
 def UsuariosAPI():
-    if checaSession(loggedUser):
+    if 'user' in session:
         query_result = engine.execute('select * from Usuario')
         print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
 
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
-    # if checaSession(loggedUser):
+    # if 'user' in session:
     data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
     return jsonify({'result': [dict(row) for row in data]})
@@ -108,7 +109,7 @@ def OrdensDeServicoAPI():
 
 @app.route('/api/ordensdeservico/<filtro>', methods=['POST'])
 def FiltroOrdensDeServicoAPI(filtro):
-    # if checaSession(loggedUser):
+    # if 'user' in session:
 
 
     dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
@@ -155,18 +156,18 @@ def FiltroOrdensDeServicoAPI(filtro):
 
 @app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
 def UpdteEstoqueItemCount(id, qntd):
-    if checaSession(loggedUser):
-        print('table ', table)
-        print('id ', id)
-        sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
-        resp = jsonify(success=True)
-        return resp
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    # if 'user' in session:
+    print('table ', table)
+    print('id ', id)
+    sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
+    resp = jsonify(success=True)
+    return resp
+    # else:
+    #     return render_template('index.html', classeFlash=classeFlash)  
 
 @app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def GetItems(table, id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         print('table ', table)
         print('id ', id)
         if table == "Mat_P":
@@ -189,7 +190,7 @@ def GetItems(table, id):
 
 @app.route('/api/materiasprimas/<int:id>', methods=['GET'])
 def GetMateriasPrimasPordemServico(id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
         query_result = engine.execute(sql)
 
@@ -199,7 +200,7 @@ def GetMateriasPrimasPordemServico(id):
 
 @app.route('/api/usuarios/<int:id>', methods=['GET'])
 def GetColaborador(id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         sql = 'select * from Usuario where id = {}'.format(id)
         query_result = engine.execute(sql)
 
@@ -210,7 +211,7 @@ def GetColaborador(id):
 
 @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
 def AddMateriasPrimasNaOrdemServico(id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         # body = request.args("lista")
         # print('body', request)
         data = request.get_json()
@@ -270,7 +271,7 @@ def AddMateriasPrimasNaOrdemServico(id):
 
 @app.route('/Servicos')
 def Servicos():
-    if checaSession(loggedUser):
+    if 'user' in session:
         query_result = engine.execute('select * from Servico')
 
         return render_template('listagemServicos.html', query_result=query_result)
@@ -279,7 +280,8 @@ def Servicos():
 
 @app.route('/Estoque')
 def Estoque():
-    if checaSession(loggedUser):
+    print('session', session)
+    if 'user' in session:
         query_result = engine.execute('select * from MateriaPrima')
 
         return render_template('estoque.html', query_result=query_result)
@@ -288,7 +290,7 @@ def Estoque():
 
 @app.route('/Usuarios')
 def Usuarios():
-    if checaSession(loggedUser):
+    if 'user' in session:
         query_result = engine.execute('select * from Usuario')
 
         return render_template('usuarios.html', query_result=query_result)
@@ -297,7 +299,7 @@ def Usuarios():
 
 @app.route('/OrdensServico')
 def OrdensServico():
-    if checaSession(loggedUser):
+    if 'user' in session:
         query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
 
         query_agendadas = engine.execute('select * from OrdensdeServico where fase = 3')
@@ -316,7 +318,7 @@ def OrdensServico():
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
-    if checaSession(loggedUser):
+    if 'user' in session:
         print('register', request.form)
         if request.method == 'POST':
             if table == "Mat_P":
@@ -376,7 +378,7 @@ def add(table):
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         print('edit')
         print(request.method)
         if table == "Mat_P":
@@ -461,7 +463,7 @@ def edit(table, id):
 
 @app.route('/delete/<table>/<int:id>', methods=['DELETE'])
 def delete(table, id):
-    if checaSession(loggedUser):
+    if 'user' in session:
         if request.method == 'DELETE':
             if table == "Mat_P":
                 sql = 'delete from materiaPrima where id = {}'.format(id)
