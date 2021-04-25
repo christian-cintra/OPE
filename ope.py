@@ -61,6 +61,8 @@ def logout():
 def checaSession(user):
     if user in session:
         return True
+
+    print('oi')
     return redirect(url_for('login'))
 
 @app.route('/api/estoque')
