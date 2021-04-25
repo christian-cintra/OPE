@@ -72,7 +72,7 @@ def EstoqueAPI():
         return render_template('index.html', classeFlash=classeFlash)   
 
 @app.route('/api/estoque/ordenar')
-def EstoqueAPI():
+def EstoqueFiltroAPI():
     if checaSession(loggedUser):
         query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
         print('query_result', query_result)
@@ -98,30 +98,30 @@ def UsuariosAPI():
 
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
-    if checaSession(loggedUser):
-        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+    # if checaSession(loggedUser):
+    data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
-        return jsonify({'result': [dict(row) for row in data]})
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return jsonify({'result': [dict(row) for row in data]})
+    # else:
+    #     return render_template('index.html', classeFlash=classeFlash)  
 
 
 @app.route('/api/ordensdeservico/<filtro>', methods=['POST', 'GET'])
 def FiltroOrdensDeServicoAPI(filtro):
-    if checaSession(loggedUser):
-        dictFiltros = {'fase': {'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'Não paga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
-        for i in dictFiltros:
-            for j in dictFiltros[i]:
-                if filtro == dictFiltros[i][j]:
-                    campo = dictFiltros[i]
-                    sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
-                    print(sql)
-                    data = engine.execute(sql)
-                    return jsonify({'result': [dict(row) for row in data]})
+    # if checaSession(loggedUser):
+    dictFiltros = {'fase': {'1': 'solicitada', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'Não paga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
+    for i in dictFiltros:
+        for j in dictFiltros[i]:
+            if filtro == dictFiltros[i][j]:
+                campo = dictFiltros[i]
+                sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
+                print(sql)
+                data = engine.execute(sql)
+                return jsonify({'result': [dict(row) for row in data]})
 
-        return 'filtro inválido'
-    else:
-        return render_template('index.html', classeFlash=classeFlash)  
+    return 'filtro inválido'
+    # else:
+    #     return render_template('index.html', classeFlash=classeFlash)  
 
 @app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
 def UpdteEstoqueItemCount(id, qntd):
