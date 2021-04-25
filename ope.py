@@ -22,11 +22,13 @@ class Usuario(db.Model):
     login = db.Column(db.String(255))
     senha = db.Column(db.String(255))
     nome = db.Column(db.String(80))
+    adm = db.Column(db.String(1))
 
-    def __init__(self, login, senha, nome):
+    def __init__(self, login, senha, nome, adm):
         self.login = login
         self.senha = senha
         self.nome = nome
+        self.adm = adm
 
 print(engine.table_names())
 
@@ -43,9 +45,11 @@ def before_request():
     g.user = None
     if 'user' in session:
         g.user = session['user']
-        return print('passei')
-    return print('n passei')
-    print(session)
+
+def checaPermissao(user):
+    if user.adm == 'S':
+        return True
+    return False
 
 def checaSession(user):
     if 'user' in session:
@@ -57,12 +61,13 @@ def checaSession(user):
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     classeFlash = 'alert alert-success'
+
     if request.method == 'POST':
         session.pop('user', None)
         login = request.form['email']
         senha = request.form['password']
-        user = Usuario.query.filter_by(login=login, senha=senha).first()
-        if user is None:
+        g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
+        if g.loggeduser is None:
             flash('Incorrect email or password.')
             classeFlash = 'alert alert-danger'
         else:
@@ -374,8 +379,9 @@ def add(table):
                 login = request.form['Login']
                 senha = request.form['senha']
                 nome = request.form['nome']
-                sql = "insert into Usuario values ('{}', '{}', '{}')".format(
-                    login, senha, nome)
+                adm = request.form['adm']
+                sql = "insert into Usuario values ('{}', '{}', '{}', '{}')".format(
+                    login, senha, nome, adm)
                 engine.execute(sql)
                 return redirect('http://localhost:3000/usuarios')
             
@@ -439,20 +445,25 @@ def edit(table, id):
                 return redirect('http://localhost:3000')
 
             elif table == "Servicos":
-                nomeServico = request.form['nomeServico']
-                sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
-                query_result = engine.execute(sql)
-                return redirect(url_for('Servicos'))
+                if checaPermissao(g.loggedUser):                
+                    nomeServico = request.form['nomeServico']
+                    sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
+                    query_result = engine.execute(sql)
+                    return redirect(url_for('Servicos'))
+                return 'Sem permissão'
 
             elif table == "Usuario":
-                table = "Usuario"
-                nome = request.form['nome']
-                login = request.form['Login']
-                senha = request.form['senha']
-                sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' where id = {}".format(
-                    login, nome, senha, id)
-                query_result = engine.execute(sql)
-                return redirect('http://localhost:3000/usuarios')
+                if checaPermissao(g.loggedUser):
+                    table = "Usuario"
+                    nome = request.form['nome']
+                    login = request.form['Login']
+                    senha = request.form['senha']
+                    adm = request.form['adm']
+                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}' where id = {}".format(
+                        login, nome, senha, adm, id)
+                    query_result = engine.execute(sql)
+                    return redirect('http://localhost:3000/usuarios')
+                return 'sem permissão'
 
             elif table == "":
                 pass
@@ -477,20 +488,26 @@ def edit(table, id):
 def delete(table, id):
     if checaSession(g.user):
         if request.method == 'DELETE':
-            if table == "Mat_P":
-                sql = 'delete from materiaPrima where id = {}'.format(id)
-                engine.execute(sql)
-
+            if checaPermissao(g.loggedUser):
+                if table == "Mat_P":
+                    sql = 'delete from materiaPrima where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
             elif table == "Ordem_S":
                 sql = 'delete from OrdensdeServico where id = {}'.format(id)
                 engine.execute(sql)
 
             elif table == "Servicos":
-                sql = 'delete from Servico where id = {}'.format(id)
-                engine.execute(sql)
+                if checaPermissao(g.loggedUser):
+                    sql = 'delete from Servico where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
 
-            elif table == "":
-                pass
+            elif table == "Usuario":
+                if checaPermissao(g.loggedUser):
+                    sql = 'delete from Usuario where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
             return 'deleted'
     return redirect(url_for('login'))
 
