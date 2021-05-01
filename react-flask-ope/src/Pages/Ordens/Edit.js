@@ -14,6 +14,7 @@ const EditOrdem = () => {
         const valueId = url.substring(url.lastIndexOf('/') + 1);
         if(valueId != 'adicionar')
             setId(valueId);
+            
 
         // pegando informações da ordem de serviço
         fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
@@ -60,8 +61,15 @@ const EditOrdem = () => {
             setEstoqueItensUtilizado(dados);
 
             dados.map((d) => {
-                data.result = data.result.filter((e) => parseInt(e.id) != parseInt(d.id));
+                data.result = data.result.filter((e) => {
+                    if(parseInt(e.id) == parseInt(d.id)){
+                        e.show = false;
+                    }
+                    return e;
+                });
             })
+
+            console.log('estoque', data.result)
 
             setEstoque(data.result)
         });
@@ -204,8 +212,14 @@ const EditOrdem = () => {
                                                         }else {
                                                             var itensEstoque = [...estoque];
                                                             var itemEstoque = itensEstoque.find((e) => e.id == item.id);
-                                                            itemEstoque.show = true;
-                                                            setEstoque(itensEstoque)
+
+                                                            if(itemEstoque != undefined){                                                                
+                                                                itemEstoque.show = true;
+                                                                setEstoque(itensEstoque)
+                                                            }else {
+                                                                // TODO
+                                                            }
+                                                            console.log('item estoque', item)
                                                         }
                                                     }else{
                                                         return materia;

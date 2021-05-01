@@ -29,6 +29,7 @@ function App() {
           <Route path="/Servicos" exact component={Servicos}/>
           <Route path="/Servicos/edit/:id" exact component={EditServicos}/>
           <Route path="/usuarios" exact component={Colaboradores}/>
+          <Route path="/usuarios/edit/:id" exact component={AdicionarColaborador}/>
           <Route path="/usuarios/adicionar" exact component={AdicionarColaborador}/>
      </BrowserRouter>
   );

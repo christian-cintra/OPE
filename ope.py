@@ -78,10 +78,18 @@ def OrdensDeServicoAPI():
 
     return jsonify({'result': [dict(row) for row in data]})
 
+@app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
+def UpdteEstoqueItemCount(id, qntd):
+    print('table ', table)
+    print('id ', id)
+    sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
+    resp = jsonify(success=True)
+    return resp
+
 
 @app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def GetItems(table, id):
-    print('talbe ', table)
+    print('table ', table)
     print('id ', id)
     if table == "Mat_P":
         sql = 'select * from MateriaPrima where id = {}'.format(id)
@@ -109,6 +117,13 @@ def GetItems(table, id):
 @app.route('/api/materiasprimas/ordemservico/<int:id>', methods=['GET'])
 def GetMateriasPrimasPordemServico(id):
     sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+    query_result = engine.execute(sql)
+
+    return jsonify({'results': [dict(row) for row in query_result]})
+
+@app.route('/api/usuarios/<int:id>', methods=['GET'])
+def GetColaborador(id):
+    sql = 'select * from Usuario where id = {}'.format(id)
     query_result = engine.execute(sql)
 
     return jsonify({'results': [dict(row) for row in query_result]})
@@ -316,6 +331,16 @@ def edit(table, id):
             query_result = engine.execute(sql)
             return redirect(url_for('Servicos'))
 
+        elif table == "Usuario":
+            table = "Usuario"
+            nome = request.form['nome']
+            login = request.form['Login']
+            senha = request.form['senha']
+            sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' where id = {}".format(
+                login, nome, senha, id)
+            query_result = engine.execute(sql)
+            return redirect('http://localhost:3000/usuarios')
+
         elif table == "":
             pass
         flash('Registro alterado com sucesso')
@@ -329,6 +354,7 @@ def edit(table, id):
         print('materias', materias_primas)
         print('estoque', estoque)
         return render_template(table+'_edit.html', row=result, materiasPrimas=materias_primas, estoque=estoque)
+        
     else:
         return render_template(table+'_edit.html', row=result)
 
