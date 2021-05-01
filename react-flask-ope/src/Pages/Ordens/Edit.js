@@ -128,6 +128,7 @@ const EditOrdem = () => {
                         <option value={2}>2 - Agendamento</option>
                         <option value={3}>3 - Agendada</option>
                         <option value={4}>4 - Executada</option>
+                        <option value={5}>5 - Cancelada</option>
                     </select>         
                     </div>
 

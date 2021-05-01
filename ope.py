@@ -89,6 +89,13 @@ def GetItems(table, id):
         for row in query_result:
             result = row
             
+    elif table == "Usuarios":
+        sql = 'select user.id, user.Lgoin, user.nome, user.adm, user.statusColaborador from Usuario AS user where os.id =  {}'.format(id)
+        query_result = engine.execute(sql)
+
+        for row in query_result:
+            result = row
+    
     elif table == "Ordem_S":
         sql = 'select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.responsavel_id, os.responsavel_id, Usuario.nome AS responsavelNome from OrdensdeServico AS os	LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id  where os.id =  {}'.format(id)
         query_result = engine.execute(sql)
