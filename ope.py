@@ -264,6 +264,7 @@ def add(table):
             login = request.form['Login']
             senha = request.form['senha']
             nome = request.form['nome']
+            status = request.form['statusColaborador']
             sql = "insert into Usuario values ('{}', '{}', '{}')".format(
                 login, senha, nome)
             engine.execute(sql)
@@ -336,8 +337,9 @@ def edit(table, id):
             nome = request.form['nome']
             login = request.form['Login']
             senha = request.form['senha']
-            sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' where id = {}".format(
-                login, nome, senha, id)
+            status = request.form['statusColaborador']
+            sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}', statusColaborador = {} where id = {}".format(
+                login, nome, senha, status, id)
             query_result = engine.execute(sql)
             return redirect('http://localhost:3000/usuarios')
 

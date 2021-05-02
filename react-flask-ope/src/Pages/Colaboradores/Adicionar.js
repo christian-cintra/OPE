@@ -26,7 +26,8 @@ const EditColaborador = () => {
                 Id: data[0].Id,
                 Login: data[0].Login,
                 nome: data[0].nome,
-                senha: data[0].senha
+                senha: data[0].senha,
+                statusColaborador: data[0].statusColaborador
             }
             setItem(body);
         });
@@ -57,6 +58,14 @@ const EditColaborador = () => {
                     <div className="form-group">
                         <label>Senha:</label>
                         <input id='senha' name='senha' type='number' value={item.senha} placeholder="******" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, senha: event.target.value})}/>            
+                    </div>
+
+                    <div className="form-group">
+                        <label>Staus:</label>
+                        <select name="statusColaborador" id="statusColaborador" className="form-select" onChange={(event) => setItem({...item, statusColaborador: event.target.value})} value={item.statusColaborador} defaultValue={item.fase}>
+                            <option value={1}>1 - Ativo</option>
+                            <option value={0}>0 - Inativo</option>
+                        </select>
                     </div>
 
                     <div className="form-group">
