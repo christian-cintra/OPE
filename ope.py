@@ -66,6 +66,7 @@ def login():
         session.pop('user', None)
         login = request.form['email']
         senha = request.form['password']
+        print('senha', senha)
         g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
         if g.loggeduser is None:
             flash('Incorrect email or password.')
@@ -132,19 +133,16 @@ def OrdensDeServicoAPI():
 
     return redirect(url_for('login'))
 
-@app.route('/api/ordensdeservico/<filtro>', methods=['POST'])
-def FiltroOrdensDeServicoAPI(filtro):
+@app.route('/api/ordensdeservico/filtrar', methods=['POST'])
+def FiltroOrdensDeServicoAPI():
     if checaSession(g.user):
 
+        payload = request.get_json()
+        print('payload', payload["filters"])
 
         dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
 
-        filtros = [
-            {
-                'campo': 'statusPagamento',
-                'valor': 1
-            }
-        ]
+        filtros = payload["filters"]
 
         # sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
@@ -154,26 +152,14 @@ def FiltroOrdensDeServicoAPI(filtro):
         for i in range(0, 1):
             filtros[i]
             print('************************')
-            if(filtros[i]['campo'] == 'statusPagamento'):
+            # if(filtros[i]['campo'] == 'statusPagamento'):
                 # query = 'WHERE statusPagamento = ' + filtros[i]['valor']
-                sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format('statusPagamento', filtros[i]['valor'])
-                print('----------------------------------------------------------')
+            sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(filtros[i]['campo'], filtros[i]['valor'])
+            print('----------------------------------------------------------')
                 # print(query)
 
-                data = engine.execute(sql + query)
-                return jsonify({'result': [dict(row) for row in data]})
-
-        # for i in dictFiltros:
-        #     for j in dictFiltros[i]:
-        #         if filtro == dictFiltros[i][j]:
-        #             campo = dictFiltros[i]['0']
-        #             print('*************************************************************************************************')
-        #             print('campo',campo)
-        #             # campo = 'fase'
-        #             sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
-        #             print(sql)
-        #             data = engine.execute(sql)
-        #             return jsonify({'result': [dict(row) for row in data]})
+            data = engine.execute(sql + query)
+            return jsonify({'result': [dict(row) for row in data]})
 
         return 'filtro inválido'
     return redirect(url_for('login'))
