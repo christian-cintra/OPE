@@ -1,32 +1,43 @@
 import React, { useState, useEffect } from 'react';
+import Loading from '../../Components/Loading';
   
 const Estoque = () => {
     const [estoque, setEstoque] = useState([]);
     const [filterText, setFilterText] = useState('');
 
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         fetch('/api/estoque').then(res => res.json()).then(data => {
             console.log('estoque', data)
             setEstoque(data.result);
+            setLoading(false);
           });
     }, []);
 
     const ordenarEstoque = () => {
+        setLoading(true);
         fetch('/api/estoque/ordenar').then(res => res.json()).then(data => {
             console.log('estoque', data)
             setEstoque(data.result);
+            setLoading(false);
             });
     }
 
-    const FiltrarEstoqueNome = (filtro) => {
+    const FiltrarEstoqueNome = () => {
+
+        setLoading(true);
+
         if (filterText) {
             fetch('/api/estoque/' + filterText).then(res => res.json()).then(data => {
                 console.log('estoque', data)
                 setEstoque(data.result);
+                setLoading(false);
                 });
         }
         else {
             fetch('/api/estoque').then(res => res.json()).then(data => {
+                setLoading(false);
                 console.log('estoque', data)
                 setEstoque(data.result);
         });
@@ -56,13 +67,19 @@ const Estoque = () => {
             <div class="flex header-container">
                 <h1 class="title">Estoque</h1>
                 <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
-                <button type="button" class="btn novo-item" onClick={ordenarEstoque}>Ordenar itens</button>
-                <input type='text' name='filtro_Estoque' value={filterText} onChange={(ev) => setFilterText(ev.target.value)} id='filtro_Estoque' placeholder='Pesquisar'/>
-                <button type="button" class="btn novo-item" onClick={() => FiltrarEstoqueNome()}>Filtrar</button>
+                <button type="button" class="btn novo-item" onClick={ordenarEstoque}>Ordenar itens</button>                
             </div>
 
+            <div className="flex header-container">
+                <input style={{width: '100%', marginRight: '10px'}} type='text' name='filtro_Estoque' value={filterText} onChange={(ev) => setFilterText(ev.target.value)} id='filtro_Estoque' placeholder='Pesquisar'/>
+                <button type="button" class="btn novo-item" onClick={FiltrarEstoqueNome}>Filtrar</button>
+            </div>
+
+            {loading && <Loading />}
+
                 <div>
-                    <table class='table table-sm table-striped table-responsive-md'>
+                    
+                    {!loading && <table class='table table-sm table-striped table-responsive-md'>
                         <thead>
                             <tr>
                                 <th scope="col">ID</th>
@@ -94,7 +111,7 @@ const Estoque = () => {
                             ))}
                             
                         </tbody>
-                    </table>
+                    </table>}
                 </div>
             </main>
     )
