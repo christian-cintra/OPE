@@ -17,6 +17,8 @@ app.secret_key = "oi"
 app.permanent_session_lifetime = timedelta(minutes=15)
 app.debug = True
 
+reactPort = "http://localhost:3000"
+
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     login = db.Column(db.String(255))
@@ -32,19 +34,19 @@ class Usuario(db.Model):
 
 print(engine.table_names())
 
-@app.route('/hello')
-def say_hello_world():
-    return {'result': "Hello World"}
-
 @app.route('/')
 def rota_Raiz():
-    return redirect(url_for('login'))
+    return redirect(reactPort)
 
 @app.before_request
 def before_request():
     g.user = None
     if 'user' in session:
         g.user = session['user']
+    # else:
+    #     response = jsonify({})
+    #     return response, 401
+        
 
 def checaPermissao(user):
     if user.adm == 'S':
@@ -58,23 +60,25 @@ def checaSession(user):
     
     
 
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login', methods=['POST'])
 def login():
     classeFlash = 'alert alert-success'
 
-    if request.method == 'POST':
-        session.pop('user', None)
-        login = request.form['email']
-        senha = request.form['password']
-        print('senha', senha)
-        g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
-        if g.loggeduser is None:
-            flash('Incorrect email or password.')
-            classeFlash = 'alert alert-danger'
-        else:
-            session['user'] = login
-            return redirect(url_for('Estoque'))
-    return render_template('index.html', classeFlash=classeFlash)            
+    session.pop('user', None)
+    login = request.form['email']
+    senha = request.form['password']
+    print('senha', senha)
+    g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
+    if g.loggeduser is None:
+        flash('Incorrect email or password.')
+        classeFlash = 'alert alert-danger'
+    else:
+        session['user'] = login
+        return {}, 204
+
+    # return render_template('index.html', classeFlash=classeFlash)            
+    response = {}
+    return response, 401      
 
 @app.route('/logout')
 def logout():
@@ -350,7 +354,7 @@ def add(table):
                     dt, vl, vs, fs, st, responsavel, servicoExecutado)
                 engine.execute(sql)
                 flash('Ordem de Serviço cadastrada com sucesso.')
-                return redirect('http://localhost:3000/')
+                return redirect(reactPort)
             
             elif table == "Servico":
                 nomeServico = request.form['nomeServico']
@@ -367,7 +371,7 @@ def add(table):
                 sql = "insert into Usuario values ('{}', '{}', '{}', '{}')".format(
                     login, senha, nome, adm)
                 engine.execute(sql)
-                return redirect('http://localhost:3000/usuarios')
+                return redirect(reactPort + 'usuarios')
             
             elif table == "":
                 pass
@@ -446,7 +450,7 @@ def edit(table, id):
                     sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}' where id = {}".format(
                         login, nome, senha, adm, id)
                     query_result = engine.execute(sql)
-                    return redirect('http://localhost:3000/usuarios')
+                    return redirect(reactPort + '/usuarios')
                 return 'sem permissão'
 
             elif table == "":

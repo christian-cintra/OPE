@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLocation } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import './App.css';
 import Header from './Components/Header';
@@ -10,8 +10,9 @@ import EditEstoque from './Pages/Estoque/Edit';
 import Ordens from './Pages/Ordens/Ordens';
 import Servicos from './Pages/Servicos/Servicos';
 import EditServicos from './Pages/Servicos/Edit.js';
+import Login from './Pages/Login/Login.js';
 
-function App() {
+function App(props) {
   const [placeholder, setPlaceholder] = useState('Hi');
 
   useEffect(() => {
@@ -19,7 +20,12 @@ function App() {
 
   return (
     <BrowserRouter>
-        <Header />
+          <Route path="/autenticacao" component={Login}/>
+          
+          {
+            window.location.href.indexOf("autenticacao") == -1 ? <Header/>:null
+          }
+
           <Route path="/" exact component={Ordens}/>
           {/* <Route path="/http://127.0.0.1:5000/" exact component={Ordens}/> */}
           <Route path="/estoque" exact component={Estoque}/>
