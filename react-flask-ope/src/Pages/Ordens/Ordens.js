@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Navigate } from 'react-router-dom';
+import Loading from '../../Components/Loading';
 import OrdemCard from './Card';
   
 const Ordens = () => {
@@ -8,6 +9,8 @@ const Ordens = () => {
     const [ordensAgendadas, setOrdensAgendadas] = useState([]);
     const [ordensExecutadas, setOrdensExecutadas] = useState([]);
     
+    const [loading, setLoading] = useState(true);
+
     const [filterText, setFilterText] = useState('');
     const [filtroFase, setFiltroFase] = useState('0');
     const [filtroPgto, setFiltroPgto] = useState('0');
@@ -25,6 +28,8 @@ const Ordens = () => {
             setNovasOrdens(data.result.filter((ordem) => ordem.fase == 1))
             setOrdensAgendadas(data.result.filter((ordem) => ordem.fase == 3))
             setOrdensExecutadas(data.result.filter((ordem) => ordem.fase == 4))
+
+            setLoading(false);
           });
     }, []);
 
@@ -36,8 +41,9 @@ const Ordens = () => {
         window.location.href = '/ordemservico/adicionar';
     }
 
-    const FiltrarOrdensStatus = (filtro) => {
+    const FiltrarOrdensStatus = () => {
 
+        setLoading(true);
         var filtros = []
 
         if(filtroFase != '0')
@@ -48,20 +54,39 @@ const Ordens = () => {
 
         if(filtroPgto != '0')
             filtros.push({
-                campo: 'fase',
-                valor: parseInt(filtroPgto)
+                "campo": 'statusPagamento',
+                "valor": parseInt(filtroPgto)
             })
+
+        if(filterText != '')
+        filtros.push({
+            "campo": 'detalhes',
+            "valor": filterText
+        })
+
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
         fetch('/api/ordensdeservico/filtrar', {
             method: 'POST',
-            body: JSON.stringify({'filters': filtros})
+            headers: myHeaders,
+            body: JSON.stringify({"filters": filtros})
         })
         .then(res => {
 
             if(res.status == 401)
                 window.location = "/autenticacao";
             console.log('res', res)
+            return res.json()
         })
+        .then(data => {
+            console.log('estoque', data)
+            setNovasOrdens(data.result.filter((ordem) => ordem.fase == 1))
+            setOrdensAgendadas(data.result.filter((ordem) => ordem.fase == 3))
+            setOrdensExecutadas(data.result.filter((ordem) => ordem.fase == 4))
+
+            setLoading(false);
+          })
     }
 
     const deleteFunction = (id, type) => {
@@ -115,7 +140,7 @@ const Ordens = () => {
                             <option value="3">Agendada</option>
                             <option value="4">Executada</option>
                         </select>
-                    </div>
+                    </div>                    
 
                     <div>
                         <p>Pagamento</p>
@@ -132,10 +157,12 @@ const Ordens = () => {
                         <input type='text' name='filtro_OS' value={filterText} onChange={(ev) => setFilterText(ev.target.value)} id='filtro_OS' placeholder='Pesquisar'/>
                     </div>
                     
-                    <button type="button" className="btn novo-item" onClick={FiltrarOrdensStatus}>Filtrar</button>
+                    <button type="button" className="btn novo-item" onClick={FiltrarOrdensStatus} disabled={loading}>Filtrar</button>
                 </div>
 
-                <section className="itens-ordens">
+                {loading && <Loading />}
+
+                {!loading && <section className="itens-ordens">
                     <div className="ordens-novas">
                         <h3>Novas</h3>
                         
@@ -158,8 +185,7 @@ const Ordens = () => {
                         ))}
                     </div>
 
-
-                    </section>
+                </section>}
 
             </main>
     )

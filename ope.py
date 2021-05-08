@@ -40,13 +40,18 @@ def rota_Raiz():
 
 @app.before_request
 def before_request():
+    # print('endpoint', )
     g.user = None
-    if 'user' in session:
+    print('teste', request.path != '/login')
+    if request.path == '/login':
+        print('entrou')
+        pass
+    elif 'user' in session:
         g.user = session['user']
-    # else:
-    #     # return redirect(reactPort + "/autenticacao")
-    #     response = jsonify({})
-    #     return response, 401
+    else:
+        # return redirect(reactPort + "/autenticacao")
+        response = jsonify({})
+        return response, 401
         
 
 def checaPermissao(user):
@@ -145,28 +150,36 @@ def FiltroOrdensDeServicoAPI():
     if checaSession(g.user):
 
         payload = request.get_json()
-        print('payload', payload["filters"])
 
-        dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
-
-        filtros = payload["filters"]
-
-        # sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+        print('payload', payload)
+        filtros = payload["filters"];
 
         query = ''
         print('****************************************************')
         print(filtros)
-        for i in range(0, 1):
+        sql = 'select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id ';
+        for i in range(0, len(filtros)):
             filtros[i]
             print('************************')
             # if(filtros[i]['campo'] == 'statusPagamento'):
                 # query = 'WHERE statusPagamento = ' + filtros[i]['valor']
-            sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(filtros[i]['campo'], filtros[i]['valor'])
+            if query != '':
+                query += ' AND '
+
+            if filtros[i]['campo'] == 'detalhes':
+                query += ('{} like \'%{}%\' ').format(filtros[i]['campo'], filtros[i]['valor'])
+            else:
+                query += ('{} = {}').format(filtros[i]['campo'], filtros[i]['valor'])
             print('----------------------------------------------------------')
                 # print(query)
 
-            data = engine.execute(sql + query)
-            return jsonify({'result': [dict(row) for row in data]})
+        print('teste', sql + query)
+        connector = ''
+        if query != '':
+            connector = 'WHERE '
+
+        data = engine.execute(sql + connector + query)
+        return jsonify({'result': [dict(row) for row in data]})
 
         return 'filtro inválido'
     return redirect(url_for('login'))
