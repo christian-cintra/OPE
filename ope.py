@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import timedelta, datetime
@@ -14,6 +14,7 @@ engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, {})
 app.config['SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc:///?odbc_connect=%s" % params
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
+app.permanent_session_lifetime = timedelta(minutes=15)
 app.debug = True
 
 class Usuario(db.Model):
@@ -21,11 +22,13 @@ class Usuario(db.Model):
     login = db.Column(db.String(255))
     senha = db.Column(db.String(255))
     nome = db.Column(db.String(80))
+    adm = db.Column(db.String(1))
 
-    def __init__(self, login, senha, nome):
+    def __init__(self, login, senha, nome, adm):
         self.login = login
         self.senha = senha
         self.nome = nome
+        self.adm = adm
 
 print(engine.table_names())
 
@@ -37,339 +40,474 @@ def say_hello_world():
 def rota_Raiz():
     return redirect(url_for('login'))
 
+@app.before_request
+def before_request():
+    g.user = None
+    if 'user' in session:
+        g.user = session['user']
+
+def checaPermissao(user):
+    if user.adm == 'S':
+        return True
+    return False
+
+def checaSession(user):
+    if 'user' in session:
+        return True
+    return False
+    
+    
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     classeFlash = 'alert alert-success'
+
     if request.method == 'POST':
+        session.pop('user', None)
         login = request.form['email']
         senha = request.form['password']
-        user = Usuario.query.filter_by(login=login, senha=senha).first()
-        if user is None:
+        g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
+        if g.loggeduser is None:
             flash('Incorrect email or password.')
             classeFlash = 'alert alert-danger'
         else:
-            session.permanent = True
-            session['user'] = user.nome
+            session['user'] = login
             return redirect(url_for('Estoque'))
     return render_template('index.html', classeFlash=classeFlash)            
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    flash('You have logged out')
+    return redirect(url_for('login'))
+
 
 
 @app.route('/api/estoque')
 def EstoqueAPI():
-    query_result = engine.execute('select * from MateriaPrima')
-    print('query_result', query_result)
-    return jsonify({'result': [dict(row) for row in query_result]})
+    if checaSession(g.user):
+        query_result = engine.execute('select * from MateriaPrima')
+        print('query_result', query_result)
+        return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
+
+@app.route('/api/estoque/ordenar')
+def EstoqueFiltroAPI():
+    if checaSession(g.user):
+        query_result = engine.execute('select * from MateriaPrima order by qtdedisponivel')
+        print('query_result', query_result)
+        return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
+
+@app.route('/api/estoque/<filtro>')
+def FiltroEstoqueAPI(filtro):
+    if checaSession(g.user):
+        sql = ("select * from MateriaPrima WHERE nome like('%{}%')").format(filtro)
+        data = engine.execute(sql)
+        return jsonify({'result': [dict(row) for row in data]})
+    return redirect(url_for('login'))
 
 @app.route('/api/servicos')
 def ServicosAPI():
-    query_result = engine.execute('select * from Servico')
-    print('query_result', query_result)
-    return jsonify({'result': [dict(row) for row in query_result]})
+    if checaSession(g.user):
+        query_result = engine.execute('select * from Servico')
+        print('query_result', query_result)
+        return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
 
 @app.route('/api/usuarios')
 def UsuariosAPI():
-    query_result = engine.execute('select * from Usuario')
-    print('query_result', query_result)
-    return jsonify({'result': [dict(row) for row in query_result]})
+    if checaSession(g.user):
+        query_result = engine.execute('select * from Usuario')
+        print('query_result', query_result)
+        return jsonify({'result': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
 
-@app.route('/api/ordensdeservico')
+@app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
-    data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+    if checaSession(g.user):
+        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
-    return jsonify({'result': [dict(row) for row in data]})
+        return jsonify({'result': [dict(row) for row in data]})
+
+    return redirect(url_for('login'))
+
+@app.route('/api/ordensdeservico/<filtro>', methods=['POST'])
+def FiltroOrdensDeServicoAPI(filtro):
+    if checaSession(g.user):
+
+
+        dictFiltros = {'fase': {'0': 'fase', 'solicitada': '1', 'Agendamento': '2', 'Agendada': '3', 'Executada': '4'}, 'statusPagamento': {'0': 'statusPagamento', 'npaga': '1', 'Paga 1ª Parcela': '2' ,  'Paga 2ª Parcela': '3'}}
+
+        filtros = [
+            {
+                'campo': 'statusPagamento',
+                'valor': 1
+            }
+        ]
+
+        # sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+
+        query = ''
+        print('****************************************************')
+        print(filtros)
+        for i in range(0, 1):
+            filtros[i]
+            print('************************')
+            if(filtros[i]['campo'] == 'statusPagamento'):
+                # query = 'WHERE statusPagamento = ' + filtros[i]['valor']
+                sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format('statusPagamento', filtros[i]['valor'])
+                print('----------------------------------------------------------')
+                # print(query)
+
+                data = engine.execute(sql + query)
+                return jsonify({'result': [dict(row) for row in data]})
+
+        # for i in dictFiltros:
+        #     for j in dictFiltros[i]:
+        #         if filtro == dictFiltros[i][j]:
+        #             campo = dictFiltros[i]['0']
+        #             print('*************************************************************************************************')
+        #             print('campo',campo)
+        #             # campo = 'fase'
+        #             sql = ('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id WHERE {} = {}').format(campo, filtro)
+        #             print(sql)
+        #             data = engine.execute(sql)
+        #             return jsonify({'result': [dict(row) for row in data]})
+
+        return 'filtro inválido'
+    return redirect(url_for('login'))
 
 @app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
 def UpdteEstoqueItemCount(id, qntd):
-    print('table ', table)
-    print('id ', id)
-    sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
-    resp = jsonify(success=True)
-    return resp
-
+    if checaSession(g.user):
+        print('table ', table)
+        print('id ', id)
+        sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
+        resp = jsonify(success=True)
+        return resp
+    return redirect(url_for('login'))
 
 @app.route('/api/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def GetItems(table, id):
-    print('table ', table)
-    print('id ', id)
-    if table == "Mat_P":
-        sql = 'select * from MateriaPrima where id = {}'.format(id)
-        query_result = engine.execute(sql)
-        for row in query_result:
-            result = row
-            
-    elif table == "Ordem_S":
-        sql = 'select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.responsavel_id, os.responsavel_id, Usuario.nome AS responsavelNome from OrdensdeServico AS os	LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id  where os.id =  {}'.format(id)
-        query_result = engine.execute(sql)
+    if checaSession(g.user):
+        print('table ', table)
+        print('id ', id)
+        if table == "Mat_P":
+            sql = 'select * from MateriaPrima where id = {}'.format(id)
+            query_result = engine.execute(sql)
+            for row in query_result:
+                result = row
+                
+        elif table == "Ordem_S":
+            sql = 'select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.responsavel_id, os.responsavel_id, Usuario.nome AS responsavelNome from OrdensdeServico AS os	LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id  where os.id =  {}'.format(id)
+            query_result = engine.execute(sql)
 
-        for row in query_result:
-            result = row
+            for row in query_result:
+                result = row
 
-    results = [str(row) for row in result]
-    return jsonify({'results': results})
+        results = [str(row) for row in result]
+        return jsonify({'results': results})
+    return redirect(url_for('login'))
 
-@app.route('/api/materiasprimas/ordemservico/<int:id>', methods=['GET'])
+@app.route('/api/materiasprimas/<int:id>', methods=['GET'])
 def GetMateriasPrimasPordemServico(id):
-    sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
-    query_result = engine.execute(sql)
+    if checaSession(g.user):
+        sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+        query_result = engine.execute(sql)
 
-    return jsonify({'results': [dict(row) for row in query_result]})
+        return jsonify({'results': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
 
 @app.route('/api/usuarios/<int:id>', methods=['GET'])
 def GetColaborador(id):
-    sql = 'select * from Usuario where id = {}'.format(id)
-    query_result = engine.execute(sql)
+    if checaSession(g.user):
+        sql = 'select * from Usuario where id = {}'.format(id)
+        query_result = engine.execute(sql)
 
-    return jsonify({'results': [dict(row) for row in query_result]})
+        return jsonify({'results': [dict(row) for row in query_result]})
+    return redirect(url_for('login'))
 
 
 @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
 def AddMateriasPrimasNaOrdemServico(id):
-    # body = request.args("lista")
-    # print('body', request)
-    data = request.get_json()
-    sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
-    query_result = engine.execute(sql)
+    if checaSession(g.user):
+        # body = request.args("lista")
+        # print('body', request)
+        data = request.get_json()
+        sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
+        query_result = engine.execute(sql)
 
-    rows = []
+        rows = []
 
-    for row in query_result:
-        rows.append(row)
+        for row in query_result:
+            rows.append(row)
 
-    # percorrer lista do banco comparando com lista recebida para atualizar quantidade ou remover itens se necessário
+        # percorrer lista do banco comparando com lista recebida para atualizar quantidade ou remover itens se necessário
 
-    for row in rows:
-        ja_cadastrado = False
-        item_permanece = False
-
-        id_materia_prima = row[1]
-        for item in data:
-            print('row', row)
-            print('item', item)
-            if id_materia_prima == item["id_materia_prima"]:
-                item_permanece = True
-
-                print('item permanece', id_materia_prima, row[2], item["quantidade"])
-                if row[2] != item["quantidade"]:
-                    print('update', id, id_materia_prima)
-                    # atualiza a quantidade de itens de matérias primas já cadastradas
-                    sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
-                    query_result = engine.execute(sql)
-                    
-        if not item_permanece :
-            # remove o item
-            print('remove ',id, id_materia_prima)
-            sql = 'delete from MateriasOrdemDeServico where id_os = {} and id_materia_prima = {}'.format(id, id_materia_prima)
-            engine.execute(sql)
-
-    # percorre lista recebida comparando com lista do banco para cadastrar se necessário
-    for item in data:
-        novo_item = True
         for row in rows:
-            if(row[1] == item["id_materia_prima"]):
-                novo_item = False
+            ja_cadastrado = False
+            item_permanece = False
 
-        if novo_item:
-            print('novo', item['id_os'], item['id_materia_prima'])
-            id_os = int(item['id_os'])
-            id_materia_prima = item['id_materia_prima']
-            Quantidade = item['quantidade']
-            valor = item['valor']
-            sql = "insert into MateriasOrdemDeServico values ('{}', {}, {}, {})".format(id_os, id_materia_prima, Quantidade, valor)
-            engine.execute(sql)
+            id_materia_prima = row[1]
+            for item in data:
+                print('row', row)
+                print('item', item)
+                if id_materia_prima == item["id_materia_prima"]:
+                    item_permanece = True
 
-    return ""
+                    print('item permanece', id_materia_prima, row[2], item["quantidade"])
+                    if row[2] != item["quantidade"]:
+                        print('update', id, id_materia_prima)
+                        # atualiza a quantidade de itens de matérias primas já cadastradas
+                        sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
+                        query_result = engine.execute(sql)
+                        
+            if not item_permanece :
+                # remove o item
+                print('remove ',id, id_materia_prima)
+                sql = 'delete from MateriasOrdemDeServico where id_os = {} and id_materia_prima = {}'.format(id, id_materia_prima)
+                engine.execute(sql)
+
+        # percorre lista recebida comparando com lista do banco para cadastrar se necessário
+        for item in data:
+            novo_item = True
+            for row in rows:
+                if(row[1] == item["id_materia_prima"]):
+                    novo_item = False
+
+            if novo_item:
+                print('novo', item['id_os'], item['id_materia_prima'])
+                id_os = int(item['id_os'])
+                id_materia_prima = item['id_materia_prima']
+                Quantidade = item['quantidade']
+                valor = item['valor']
+                sql = "insert into MateriasOrdemDeServico values ('{}', {}, {}, {})".format(id_os, id_materia_prima, Quantidade, valor)
+                engine.execute(sql)
+
+        return ""
+    return redirect(url_for('login'))
 
 @app.route('/Servicos')
 def Servicos():
-    query_result = engine.execute('select * from Servico')
+    if checaSession(g.user):
+        query_result = engine.execute('select * from Servico')
 
-    return render_template('listagemServicos.html', query_result=query_result)
+        return render_template('listagemServicos.html', query_result=query_result)
+    return redirect(url_for('login'))
 
 @app.route('/Estoque')
 def Estoque():
-    query_result = engine.execute('select * from MateriaPrima')
+    if checaSession(g.user):
+        query_result = engine.execute('select * from MateriaPrima')
 
-    return render_template('estoque.html', query_result=query_result)
+        return render_template('estoque.html', query_result=query_result)
+    return redirect(url_for('login'))
+
 
 @app.route('/Usuarios')
 def Usuarios():
-    query_result = engine.execute('select * from Usuario')
+    if checaSession(g.user):
+        query_result = engine.execute('select * from Usuario')
 
-    return render_template('usuarios.html', query_result=query_result)
+        return render_template('usuarios.html', query_result=query_result)
+    return redirect(url_for('login'))
 
 @app.route('/OrdensServico')
 def OrdensServico():
-    query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
+    if checaSession(g.user):
+        query_novas = engine.execute('select * from OrdensdeServico where fase = 1')
 
-    query_agendadas = engine.execute('select * from OrdensdeServico where fase = 3')
+        query_agendadas = engine.execute('select * from OrdensdeServico where fase = 3')
 
-    query_executadas = engine.execute('select * from OrdensdeServico where fase = 4')
+        query_executadas = engine.execute('select * from OrdensdeServico where fase = 4')
 
-    results = {
-        'novas': query_novas,
-        'agendadas': query_agendadas,
-        'executadas': query_executadas,
-    }
+        results = {
+            'novas': query_novas,
+            'agendadas': query_agendadas,
+            'executadas': query_executadas,
+        }
 
-    return render_template('ordens.html', query_result=results)
+        return render_template('ordens.html', query_result=results)
+    return redirect(url_for('login'))
+
 
 @app.route('/add/<table>', methods=['POST', 'GET'])
 def add(table):
-    print('register', request.form)
-    if request.method == 'POST':
+    if checaSession(g.user):
+        print('register', request.form)
+        if request.method == 'POST':
+            if table == "Mat_P":
+                nm = request.form['nome']
+                pb = request.form['priceBuy']
+                ps = request.form['priceSell']
+                dt = datetime.now()
+                da = datetime.now()
+                qt = request.form['quantidade']
+                sql = "insert into MateriaPrima values ('{}', {}, {}, '{}','{}', {})".format(
+                    nm, pb, ps, dt, da, qt)
+                engine.execute(sql)
+                flash('Matéria Prima cadastrada com sucesso.')
+                print(request.form)
+                return render_template(table+'_edit.html', method="POST", row={})
+            
+            elif table == "Ordem_S":
+                table = "Ordem_S"
+                dt = request.form['detalhes']
+                vl = request.form['valorPecas']
+                servicoExecutado = request.form['servicoExecutado']
+                vs = request.form['valorServico']
+                fs = request.form['fase']
+                st = request.form['statusPagamento']
+                responsavel = request.form['responsavel_id']
+                sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {})".format(
+                    dt, vl, vs, fs, st, responsavel, servicoExecutado)
+                engine.execute(sql)
+                flash('Ordem de Serviço cadastrada com sucesso.')
+                return redirect('http://localhost:3000/')
+            
+            elif table == "Servico":
+                nomeServico = request.form['nomeServico']
+                sql = "insert into Servico values ('{}')".format(nomeServico)
+                engine.execute(sql)
+                flash('Serviço cadastrado com sucesso.')
+                print(request.form)
+
+            elif table == "Usuario":
+                login = request.form['Login']
+                senha = request.form['senha']
+                nome = request.form['nome']
+                adm = request.form['adm']
+                sql = "insert into Usuario values ('{}', '{}', '{}', '{}')".format(
+                    login, senha, nome, adm)
+                engine.execute(sql)
+                return redirect('http://localhost:3000/usuarios')
+            
+            elif table == "":
+                pass
+
         if table == "Mat_P":
-            nm = request.form['nome']
-            pb = request.form['priceBuy']
-            ps = request.form['priceSell']
-            dt = datetime.now()
-            da = datetime.now()
-            qt = request.form['quantidade']
-            sql = "insert into MateriaPrima values ('{}', {}, {}, '{}','{}', {})".format(
-                nm, pb, ps, dt, da, qt)
-            engine.execute(sql)
-            flash('Matéria Prima cadastrada com sucesso.')
-            print(request.form)
             return render_template(table+'_edit.html', method="POST", row={})
-        
-        elif table == "Ordem_S":
-            table = "Ordem_S"
-            dt = request.form['detalhes']
-            vl = request.form['valorPecas']
-            servicoExecutado = request.form['servicoExecutado']
-            vs = request.form['valorServico']
-            fs = request.form['fase']
-            st = request.form['statusPagamento']
-            responsavel = request.form['responsavel_id']
-            sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {})".format(
-                dt, vl, vs, fs, st, responsavel, servicoExecutado)
-            engine.execute(sql)
-            flash('Ordem de Serviço cadastrada com sucesso.')
-            return redirect('http://localhost:3000/')
-        
-        elif table == "Servico":
-            nomeServico = request.form['nomeServico']
-            sql = "insert into Servico values ('{}')".format(nomeServico)
-            engine.execute(sql)
-            flash('Serviço cadastrado com sucesso.')
-            print(request.form)
+        else:
+            return render_template(table+'_add.html')
+    return redirect(url_for('login'))
 
-        elif table == "Usuario":
-            login = request.form['Login']
-            senha = request.form['senha']
-            nome = request.form['nome']
-            sql = "insert into Usuario values ('{}', '{}', '{}')".format(
-                login, senha, nome)
-            engine.execute(sql)
-            return redirect('http://localhost:3000/usuarios')
-        
-        elif table == "":
-            pass
-
-    if table == "Mat_P":
-        return render_template(table+'_edit.html', method="POST", row={})
-    else:
-        return render_template(table+'_add.html')
 
 @app.route('/edit/<table>/<int:id>', methods=['POST', 'GET'])
 def edit(table, id):
-    print('edit')
-    print(request.method)
-    if table == "Mat_P":
-        sql = 'select * from MateriaPrima where id = {}'.format(id)
-        query_result = engine.execute(sql)
-        for row in query_result:
-            result = row
-    elif table == "Ordem_S":
-        sql = 'select * from OrdensdeServico where id = {}'.format(id)
-        query_result = engine.execute(sql)
-        for row in query_result:
-            result = row
-    elif table == "Servicos":
-        sql = 'select * from Servico where id = {}'.format(id)
-        query_result = engine.execute(sql)
-        for row in query_result:
-            result = row    
-
-    if request.method == 'POST':
+    if checaSession(g.user):
+        print('edit')
+        print(request.method)
         if table == "Mat_P":
-            nm = request.form['nome']
-            pb = request.form['priceBuy']
-            ps = request.form['priceSell']
-            dt = request.form['date_ins']
-            da = datetime.now()
-            qt = request.form['quantidade']
-            sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
-                nm, pb, ps, dt, da, qt, id)
+            sql = 'select * from MateriaPrima where id = {}'.format(id)
             query_result = engine.execute(sql)
-            print('query', query_result)
-            flash('Item alterado com sucesso')
-            return redirect(url_for('Estoque'))
-        
+            for row in query_result:
+                result = row
         elif table == "Ordem_S":
-            table = "Ordem_S"
-            dt = request.form['detalhes']
-            vl = request.form['valorPecas']
-            vs = request.form['valorServico']
-            fs = request.form['fase']
-            st = request.form['statusPagamento']
-            re = request.form['responsavel_id']
-            sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
-                dt, vl, vs, fs, st, re, id)
+            sql = 'select * from OrdensdeServico where id = {}'.format(id)
             query_result = engine.execute(sql)
-            return redirect('http://localhost:3000')
-
+            for row in query_result:
+                result = row
         elif table == "Servicos":
-            nomeServico = request.form['nomeServico']
-            sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
+            sql = 'select * from Servico where id = {}'.format(id)
             query_result = engine.execute(sql)
-            return redirect(url_for('Servicos'))
+            for row in query_result:
+                result = row    
 
-        elif table == "Usuario":
-            table = "Usuario"
-            nome = request.form['nome']
-            login = request.form['Login']
-            senha = request.form['senha']
-            sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' where id = {}".format(
-                login, nome, senha, id)
-            query_result = engine.execute(sql)
-            return redirect('http://localhost:3000/usuarios')
+        if request.method == 'POST':
+            if table == "Mat_P":
+                nm = request.form['nome']
+                pb = request.form['priceBuy']
+                ps = request.form['priceSell']
+                dt = request.form['date_ins']
+                da = datetime.now()
+                qt = request.form['quantidade']
+                sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
+                    nm, pb, ps, dt, da, qt, id)
+                query_result = engine.execute(sql)
+                print('query', query_result)
+                flash('Item alterado com sucesso')
+                return redirect(url_for('Estoque'))
+            
+            elif table == "Ordem_S":
+                table = "Ordem_S"
+                dt = request.form['detalhes']
+                vl = request.form['valorPecas']
+                vs = request.form['valorServico']
+                fs = request.form['fase']
+                st = request.form['statusPagamento']
+                re = request.form['responsavel_id']
+                sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
+                    dt, vl, vs, fs, st, re, id)
+                query_result = engine.execute(sql)
+                return redirect('http://localhost:3000')
 
-        elif table == "":
-            pass
-        flash('Registro alterado com sucesso')
-        return redirect(url_for('Estoque'))
+            elif table == "Servicos":
+                if checaPermissao(g.loggedUser):                
+                    nomeServico = request.form['nomeServico']
+                    sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
+                    query_result = engine.execute(sql)
+                    return redirect(url_for('Servicos'))
+                return 'Sem permissão'
 
-    if(table == "Ordem_S"):
-        materias_primas = engine.execute('select * from MateriasOrdemDeServico where id_os = ' + str(result.id))
+            elif table == "Usuario":
+                if checaPermissao(g.loggedUser):
+                    table = "Usuario"
+                    nome = request.form['nome']
+                    login = request.form['Login']
+                    senha = request.form['senha']
+                    adm = request.form['adm']
+                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}' where id = {}".format(
+                        login, nome, senha, adm, id)
+                    query_result = engine.execute(sql)
+                    return redirect('http://localhost:3000/usuarios')
+                return 'sem permissão'
 
-        estoque = engine.execute('select * from MateriaPrima')
+            elif table == "":
+                pass
+            flash('Registro alterado com sucesso')
+            return redirect(url_for('Estoque'))
 
-        print('materias', materias_primas)
-        print('estoque', estoque)
-        return render_template(table+'_edit.html', row=result, materiasPrimas=materias_primas, estoque=estoque)
-        
-    else:
-        return render_template(table+'_edit.html', row=result)
+        if(table == "Ordem_S"):
+            materias_primas = engine.execute('select * from MateriasOrdemDeServico where id_os = ' + str(result.id))
+
+            estoque = engine.execute('select * from MateriaPrima')
+
+            print('materias', materias_primas)
+            print('estoque', estoque)
+            return render_template(table+'_edit.html', row=result, materiasPrimas=materias_primas, estoque=estoque)
+            
+        else:
+            return render_template(table+'_edit.html', row=result)
+    return redirect(url_for('login'))
 
 
 @app.route('/delete/<table>/<int:id>', methods=['DELETE'])
 def delete(table, id):
-    if request.method == 'DELETE':
-        if table == "Mat_P":
-            sql = 'delete from materiaPrima where id = {}'.format(id)
-            engine.execute(sql)
+    if checaSession(g.user):
+        if request.method == 'DELETE':
+            if checaPermissao(g.loggedUser):
+                if table == "Mat_P":
+                    sql = 'delete from materiaPrima where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
+            elif table == "Ordem_S":
+                sql = 'delete from OrdensdeServico where id = {}'.format(id)
+                engine.execute(sql)
 
-        elif table == "Ordem_S":
-            sql = 'delete from OrdensdeServico where id = {}'.format(id)
-            engine.execute(sql)
+            elif table == "Servicos":
+                if checaPermissao(g.loggedUser):
+                    sql = 'delete from Servico where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
 
-        elif table == "Servicos":
-            sql = 'delete from Servico where id = {}'.format(id)
-            engine.execute(sql)
-
-        elif table == "":
-            pass
-        return 'deleted'
+            elif table == "Usuario":
+                if checaPermissao(g.loggedUser):
+                    sql = 'delete from Usuario where id = {}'.format(id)
+                    engine.execute(sql)
+                return 'sem permissão'
+            return 'deleted'
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':

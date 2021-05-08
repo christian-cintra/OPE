@@ -6,6 +6,7 @@ const Ordens = () => {
     const [estoque, setEstoque] = useState([]);
     const [novasOrdens, setNovasOrdens] = useState([]);
     const [ordensAgendadas, setOrdensAgendadas] = useState([]);
+    const [filterText, setFilterText] = useState('');
     const [ordensExecutadas, setOrdensExecutadas] = useState([]);
 
     useEffect(() => {
@@ -23,6 +24,12 @@ const Ordens = () => {
 
     const addFunction = () => {
         window.location.href = '/ordemservico/adicionar';
+    }
+
+    const FiltrarOrdensStatus = (filtro) => {
+        fetch('/api/ordensdeservico/' + filterText, {
+            method: 'GET',
+        })
     }
 
     const deleteFunction = (id, type) => {
@@ -57,6 +64,8 @@ const Ordens = () => {
                 <div class="flex header-container">
                     <h1 class="title">Ordens de Serviço</h1>
                     <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
+                    <input type='text' name='filtro_OS' value={filterText} onChange={(ev) => setFilterText(ev.target.value)} id='filtro_OS' placeholder='Pesquisar'/>
+                    <button type="button" class="btn novo-item" onClick={() => FiltrarOrdensStatus()}>Filtrar</button>
                 </div>
 
                 <section class="itens-ordens">

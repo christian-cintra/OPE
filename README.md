@@ -1,6 +1,5 @@
-# OPE
-
-Executar Web
-Abrir pasta react-flask-ope e dentro dela:
+# OPE-react
+ 
+cd react-flask-ope
 npm install
-yarn start
+npm start

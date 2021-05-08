@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
   
 const Estoque = () => {
     const [estoque, setEstoque] = useState([]);
+    const [filterText, setFilterText] = useState('');
 
     useEffect(() => {
         fetch('/api/estoque').then(res => res.json()).then(data => {
@@ -9,6 +10,30 @@ const Estoque = () => {
             setEstoque(data.result);
           });
     }, []);
+
+    const ordenarEstoque = () => {
+        fetch('/api/estoque/ordenar').then(res => res.json()).then(data => {
+            console.log('estoque', data)
+            setEstoque(data.result);
+            });
+    }
+
+    const FiltrarEstoqueNome = (filtro) => {
+        if (filterText) {
+            fetch('/api/estoque/' + filterText).then(res => res.json()).then(data => {
+                console.log('estoque', data)
+                setEstoque(data.result);
+                });
+        }
+        else {
+            fetch('/api/estoque').then(res => res.json()).then(data => {
+                console.log('estoque', data)
+                setEstoque(data.result);
+        });
+
+        }
+    }
+    
 
     const addFunction = () => {
         window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
@@ -27,11 +52,14 @@ const Estoque = () => {
     }
 
     return (
-            <main>
-                <div class="flex header-container">
-                    <h1 class="title">Estoque</h1>
-                    <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
-                </div>
+        <main>
+            <div class="flex header-container">
+                <h1 class="title">Estoque</h1>
+                <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
+                <button type="button" class="btn novo-item" onClick={ordenarEstoque}>Ordenar itens</button>
+                <input type='text' name='filtro_Estoque' value={filterText} onChange={(ev) => setFilterText(ev.target.value)} id='filtro_Estoque' placeholder='Pesquisar'/>
+                <button type="button" class="btn novo-item" onClick={() => FiltrarEstoqueNome()}>Filtrar</button>
+            </div>
 
                 <div>
                     <table class='table table-sm table-striped table-responsive-md'>
