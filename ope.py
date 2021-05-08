@@ -44,6 +44,7 @@ def before_request():
     if 'user' in session:
         g.user = session['user']
     # else:
+    #     # return redirect(reactPort + "/autenticacao")
     #     response = jsonify({})
     #     return response, 401
         
@@ -69,6 +70,8 @@ def login():
     senha = request.form['password']
     print('senha', senha)
     g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
+
+    print('user',  g.loggeduser)
     if g.loggeduser is None:
         flash('Incorrect email or password.')
         classeFlash = 'alert alert-danger'
