@@ -42,7 +42,6 @@ def rota_Raiz():
 def before_request():
     # print('endpoint', )
     g.user = None
-    print('teste', request.path != '/login')
     if request.path == '/login':
         print('entrou')
         pass
@@ -173,7 +172,6 @@ def FiltroOrdensDeServicoAPI():
             print('----------------------------------------------------------')
                 # print(query)
 
-        print('teste', sql + query)
         connector = ''
         if query != '':
             connector = 'WHERE '
@@ -216,7 +214,7 @@ def GetItems(table, id):
         return jsonify({'results': results})
     return redirect(url_for('login'))
 
-@app.route('/api/materiasprimas/<int:id>', methods=['GET'])
+@app.route('/api/materiasprimas/ordemservico/<int:id>', methods=['GET'])
 def GetMateriasPrimasPordemServico(id):
     if checaSession(g.user):
         sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
@@ -233,6 +231,22 @@ def GetColaborador(id):
 
         return jsonify({'results': [dict(row) for row in query_result]})
     return redirect(url_for('login'))
+
+def AtualizarQuantidadeItemEstoque(materiaPrimaId, qntdAlterada):
+        sql = 'select * from MateriaPrima where id = {}'.format(materiaPrimaId)
+        query_result = engine.execute(sql)
+        print('query_result materiaprima')
+        print(query_result)
+        for row in query_result:
+            result = row
+
+        print('resultaddoo')
+        print(result)
+
+        quantidadeAtual = row[6] +qntdAlterada
+
+        sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(quantidadeAtual, materiaPrimaId)
+        query_result = engine.execute(sql)
 
 
 @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
@@ -268,6 +282,11 @@ def AddMateriasPrimasNaOrdemServico(id):
                         # atualiza a quantidade de itens de matérias primas já cadastradas
                         sql = "update MateriasOrdemDeServico set Quantidade = '{}' where id_os = {} and id_materia_prima = {}".format(item["quantidade"], id, id_materia_prima)
                         query_result = engine.execute(sql)
+                        if item["estoque_alteracao"] != 0:
+                            quantidade = item["estoque_alteracao"]
+                            # if quantidade < 0:
+                            #     quantidade = quantidade * (-1)
+                            AtualizarQuantidadeItemEstoque(id_materia_prima, quantidade)
                         
             if not item_permanece :
                 # remove o item
@@ -428,8 +447,7 @@ def edit(table, id):
                 dt = request.form['date_ins']
                 da = datetime.now()
                 qt = request.form['quantidade']
-                sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(
-                    nm, pb, ps, dt, da, qt, id)
+                sql = "update MateriaPrima set nome = '{}', valor_compra = {}, valor_venda = {}, data_abastecimento = '{}', data_atualização = '{}', qtdedisponivel = {} where id = {}".format(nm, pb, ps, dt, da, qt, id)
                 query_result = engine.execute(sql)
                 print('query', query_result)
                 flash('Item alterado com sucesso')

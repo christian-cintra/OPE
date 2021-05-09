@@ -5,6 +5,7 @@ const EditOrdem = () => {
     const [estoqueItensUtilizado, setEstoqueItensUtilizado] = useState([]);
 
     const [estoque, setEstoque] = useState([]);
+    const [estoqueCopy, setEstoqueCopy] = useState([]);
     const [id, setId] = useState(null);
     const [colaboradores, setColaboradores] = useState([]);
 
@@ -17,8 +18,14 @@ const EditOrdem = () => {
             
 
         // pegando informações da ordem de serviço
-        fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(data => {
+        fetch(`/api/edit/Ordem_S/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => {
+            if(res.status == 401)
+                window.location = "/autenticacao";
+            return res.json()
+        }).then(data => {
             console.log('estoque', data)
+
+
 
             data = data.results;
 
@@ -36,43 +43,38 @@ const EditOrdem = () => {
 
         // pegando itens do estoque
         fetch('/api/estoque').then(res => res.json()).then(data => {
-            // setEstoque(data.result);
 
             // pegando materias primas selecionadas para a ordem de serviço
-        fetch(`/api/materiasprimas/ordemservico/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(dataResult => {
+            fetch(`/api/materiasprimas/ordemservico/${url.substring(url.lastIndexOf('/') + 1)}`).then(res => res.json()).then(dataResult => {
 
-            const materias = estoque;
+                var dados = [];
 
-            var dados = [];
+                data.result.forEach(esto => {
 
-            data.result.forEach(esto => {
+                    dataResult.results.forEach(da => {
+                        if(esto.id == da.id_materia_prima){
+                            var mat = esto;
+                            mat.Quantidade = da.Quantidade;
+                            dados.push(mat);
+                        }
+                    });
+                });        
+                setEstoqueItensUtilizado(dados);
 
-                dataResult.results.forEach(da => {
-                    if(esto.id == da.id_materia_prima){
-                        var mat = esto;
-                        mat.Quantidade = da.Quantidade
-                        dados.push(mat)
+                dados.map((d) => {
+                    data.result = data.result.filter((e) => {
+                        if(parseInt(e.id) == parseInt(d.id)){
+                            e.show = false;
+                        }
+                        return e;
+                    });
+                })
 
-                        
+                console.log('estoque', data.result)
 
-                    }
-                });
-            });        
-            setEstoqueItensUtilizado(dados);
-
-            dados.map((d) => {
-                data.result = data.result.filter((e) => {
-                    if(parseInt(e.id) == parseInt(d.id)){
-                        e.show = false;
-                    }
-                    return e;
-                });
-            })
-
-            console.log('estoque', data.result)
-
-            setEstoque(data.result)
-        });
+                setEstoque([...data.result])
+                setEstoqueCopy([...data.result])
+            });
           });
 
           fetch('/api/usuarios').then(res => res.json()).then(data => {
@@ -81,15 +83,6 @@ const EditOrdem = () => {
           });
 
     }, []);
-
-    const itemEstoque = (item) => {
-        if(estoqueItensUtilizado.findIndex(i => i.id == item.id)){
-            return <></>
-        }
-        return (<button key={item.id} type="button" className="list-group-item list-group-item-action" onClick={() => {
-            return setEstoqueItensUtilizado([...estoqueItensUtilizado, item])
-        }}>{item.nome}</button>)
-    }
 
     return (
             <main>
@@ -182,50 +175,67 @@ const EditOrdem = () => {
                                         <div>
                                             <span className="add-option" onClick={() => {
 
-                                                var quantidadeInvalida = false
+                                                var quantidadeInvalida = false;
+                                                var itemEstoque;
                                                 const newList = estoqueItensUtilizado.map((materia) => {
                                                     if (materia.id === item.id) {
-                                                        var itemEstoque = estoque.find((e) => e.id == item.id);
+                                                        itemEstoque = estoque.find((e) => e.id == item.id);
                                                         
 
                                                         if(item.Quantidade + 1 > itemEstoque.QtdeDisponivel){
                                                             alert('Quantidade indisponível')
                                                             quantidadeInvalida = true;
                                                         }
-                                                    materia.Quantidade = materia.Quantidade +1;
+
+                                                    var materiaUtilizada = {...materia};
+                                                    materiaUtilizada.Quantidade = materiaUtilizada.Quantidade +1;
+                                                    materiaUtilizada.QtdeDisponivel = materiaUtilizada.QtdeDisponivel -1;
                                                     }
-                                                    return materia;
+                                                    return materiaUtilizada;
                                                 })
-                                                if(!quantidadeInvalida)
-                                                    return setEstoqueItensUtilizado(newList)
+                                                if(!quantidadeInvalida){
+                                                    return setEstoqueItensUtilizado([...newList])
+                                                }
                                                 }}>+</span>
 
                                                 <span className="add-option" style={{marginLeft: '10px'}} onClick={() => {
-                                                const newList = estoqueItensUtilizado.map((materia) => {
+                                                    var itensEstoque = [...estoque];
                                                     
-                                                    if (materia.id === item.id) {
-                                                        if(materia.Quantidade > 1){
+                                                    const newList = estoqueItensUtilizado.map((materia) => {
+                                                    
+                                                        var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+                                                        if (materia.id === item.id) {
 
-                                                            materia.Quantidade = materia.Quantidade -1;
-                                                            return materia;
-                                                        }else {
-                                                            var itensEstoque = [...estoque];
-                                                            var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+                                                            var materiaUtilizada = {...materia};
 
-                                                            if(itemEstoque != undefined){                                                                
-                                                                itemEstoque.show = true;
-                                                                setEstoque(itensEstoque)
+                                                            if(materiaUtilizada.Quantidade > 1){
+                                                                materiaUtilizada.Quantidade = materiaUtilizada.Quantidade -1;
+                                                                materiaUtilizada.QtdeDisponivel = materiaUtilizada.QtdeDisponivel +1;
+                                                                return materiaUtilizada;
                                                             }else {
-                                                                // TODO
+                                                                
+
+                                                                if(itemEstoque != undefined){                                                                
+                                                                    itemEstoque.show = true;
+                                                                    
+                                                                }else {
+                                                                    // TODO
+                                                                }
+                                                                console.log('item estoque', item)
                                                             }
-                                                            console.log('item estoque', item)
+                                                        }else{
+
+                                                            return materia;
                                                         }
-                                                    }else{
-                                                        return materia;
-                                                    }
+                                                    })
                                                     
-                                                })
-                                                return setEstoqueItensUtilizado(newList.filter(n => n != undefined))
+                                                    
+                                                    
+                                                    console.log(itensEstoque)
+                                                // setEstoque(itensEstoque)
+                                                console.log(itensEstoque)
+
+                                                return setEstoqueItensUtilizado([...newList.filter(n => n != undefined)])
                                                 }}>-</span>
                                             </div>
 
@@ -244,14 +254,22 @@ const EditOrdem = () => {
                             <div style={{width:'100%', textAlign: 'center'}}>
                                 <button className="btn novo-item" style={{width: '150px'}} onClick={(event) => {
                                     event.preventDefault();
+                                    console.log('estoqueCopy', estoqueCopy)
+                                    console.log('estoqueCopy', estoque)
+                                    console.log('estoqueItensUtilizado', estoqueItensUtilizado)
+                                    console.log(`a`, estoqueCopy.find(e => e.id == 12))
+                                    console.log(`a`, estoque.find(e => e.id == 12))
+                                    console.log(`a`, estoqueItensUtilizado)
 
+                                    // return;
                                     var body = estoqueItensUtilizado.map(it => (
                                         {
                                             "id_os": parseInt(id),
                                             "id_materia_prima": it.id,
                                             "quantidade": it.Quantidade,
                                             "valor": it.valor_venda,
-                                            "responsavel_id": it.responsavel_id
+                                            "responsavel_id": it.responsavel_id,
+                                            "estoque_alteracao": (estoqueCopy.find(e => e.id == it.id).QtdeDisponivel - it.QtdeDisponivel) * (-1)
                                         }
                                     ))
    
@@ -266,6 +284,8 @@ const EditOrdem = () => {
                                         ).then(res => res.json()).then(data => {
                                         console.log('response', data)
                                       });
+
+                                      //todo: recarregar pg
                                       
                                 }}>Salvar itens</button>
                             </div>
@@ -283,10 +303,12 @@ const EditOrdem = () => {
                                         var itemEstoque = itensEstoque.find((e) => e.id == item.id);
                                         itemEstoque.show = false;
                                         
+                                        
                                         setEstoque(itensEstoque);
-
+                                        
                                         var novoItem = {...item};
                                         novoItem.Quantidade = 1;
+                                        novoItem.QtdeDisponivel = itemEstoque.QtdeDisponivel -1;
                                         return setEstoqueItensUtilizado([...estoqueItensUtilizado, novoItem])
                                     }}>
                                         <b>{item.QtdeDisponivel}-</b>
