@@ -235,13 +235,9 @@ def GetColaborador(id):
 def AtualizarQuantidadeItemEstoque(materiaPrimaId, qntdAlterada):
         sql = 'select * from MateriaPrima where id = {}'.format(materiaPrimaId)
         query_result = engine.execute(sql)
-        print('query_result materiaprima')
-        print(query_result)
+
         for row in query_result:
             result = row
-
-        print('resultaddoo')
-        print(result)
 
         quantidadeAtual = row[6] +qntdAlterada
 
@@ -252,8 +248,6 @@ def AtualizarQuantidadeItemEstoque(materiaPrimaId, qntdAlterada):
 @app.route('/add/materiasprimas/ordemservico/<int:id>', methods=['POST'])
 def AddMateriasPrimasNaOrdemServico(id):
     if checaSession(g.user):
-        # body = request.args("lista")
-        # print('body', request)
         data = request.get_json()
         sql = 'select * from MateriasOrdemDeServico where id_os = {}'.format(id)
         query_result = engine.execute(sql)
@@ -284,13 +278,10 @@ def AddMateriasPrimasNaOrdemServico(id):
                         query_result = engine.execute(sql)
                         if item["estoque_alteracao"] != 0:
                             quantidade = item["estoque_alteracao"]
-                            # if quantidade < 0:
-                            #     quantidade = quantidade * (-1)
                             AtualizarQuantidadeItemEstoque(id_materia_prima, quantidade)
                         
             if not item_permanece :
                 # remove o item
-                print('remove ',id, id_materia_prima)
                 sql = 'delete from MateriasOrdemDeServico where id_os = {} and id_materia_prima = {}'.format(id, id_materia_prima)
                 engine.execute(sql)
 
@@ -302,7 +293,6 @@ def AddMateriasPrimasNaOrdemServico(id):
                     novo_item = False
 
             if novo_item:
-                print('novo', item['id_os'], item['id_materia_prima'])
                 id_os = int(item['id_os'])
                 id_materia_prima = item['id_materia_prima']
                 Quantidade = item['quantidade']
@@ -312,6 +302,40 @@ def AddMateriasPrimasNaOrdemServico(id):
 
         return ""
     return redirect(url_for('login'))
+
+@app.route('/api/agendamento/ordemservico/<int:id>', methods=['GET'])
+def GetAgendamentosPorOrdemDeServico(id):
+        sql = 'select * from Agendamentos where idOs = {}'.format(id)
+        query_result = engine.execute(sql)
+        return jsonify({'results': [dict(row) for row in query_result]})
+
+@app.route('/api/agendamento/<int:id>', methods=['PUT'])
+def UpdateAgendamento(id):
+
+    data = request.get_json()
+    
+    sql = "update Agendamentos set InicioDateTime = '{}', TerminoDateTime = '{}', StatusAgendamento = {} where id = {}".format(data["inicioDateTime"], data["terminoDateTime"], data["statusAgendamento"], id)
+    print('sqlaaa')
+    print(sql)
+    query_result = engine.execute(sql)
+
+    return jsonify({})
+    
+
+@app.route('/api/agendamento/adicionar/ordemservico/<int:id>', methods=['POST'])
+def CriarAgendamento(id):
+
+    data = request.get_json()
+
+    # STATUS: 0 - criado; 1 - cancelado
+    idOS = id
+    InicioDateTime = data['inicioDateTime']
+    TerminoDateTime = data['terminoDateTime']
+    Status = data['status']
+    sql = "insert into Agendamentos (InicioDateTime, TerminoDateTime, StatusAgendamento, idOS) values ('{}', '{}', {}, {})".format(InicioDateTime, TerminoDateTime, Status, idOS)
+    engine.execute(sql)
+
+    return jsonify({})
 
 @app.route('/Servicos')
 def Servicos():

@@ -109,6 +109,10 @@ button{
   text-align: center;
 }
 
+.align-r {
+  text-align: right;
+}
+
 @media only screen and (max-width: 500px) {
   .header-container {
 
@@ -155,7 +159,26 @@ grid-template-areas: 'ordens-novas ordens-agendadas ordens-executadas';
   cursor: pointer;
 }
 
+/* Ordem de serviço edicao */
+.os-form {
+  display: grid;
+  grid-template-areas: "osdata osagendamentos"
+  "osmateriais osmateriais";
+  column-gap: 2em;
+  grid-template-columns: 3fr 2fr;
+}
 
+.os-data {
+  grid-area: osdata;
+}
+
+.os-agendamentos {
+  grid-area: osagendamentos;
+}
+
+.os-materiais {
+  grid-area: osmateriais;
+}
 
 /* Login */
 .bd-placeholder-img {
