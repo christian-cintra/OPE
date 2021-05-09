@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLocation } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import './App.css';
 import Header from './Components/Header';
 import EditOrdem from './Pages/Ordens/Edit';
 import Estoque from './Pages/Estoque/Estoque';
+import Colaboradores from './Pages/Colaboradores/Colaboradores';
+import AdicionarColaborador from './Pages/Colaboradores/Adicionar';
 import EditEstoque from './Pages/Estoque/Edit';
 import Ordens from './Pages/Ordens/Ordens';
+import Servicos from './Pages/Servicos/Servicos';
+import EditServicos from './Pages/Servicos/Edit.js';
+import Login from './Pages/Login/Login.js';
 
-function App() {
+function App(props) {
   const [placeholder, setPlaceholder] = useState('Hi');
 
   useEffect(() => {
@@ -15,12 +20,23 @@ function App() {
 
   return (
     <BrowserRouter>
-        <Header />
+          <Route path="/autenticacao" component={Login}/>
+          
+          {
+            window.location.href.indexOf("autenticacao") == -1 ? <Header/>:null
+          }
+
           <Route path="/" exact component={Ordens}/>
           {/* <Route path="/http://127.0.0.1:5000/" exact component={Ordens}/> */}
           <Route path="/estoque" exact component={Estoque}/>
           <Route path="/ordemservico/edit/:id" exact component={EditOrdem}/>
+          <Route path="/ordemservico/adicionar" exact component={EditOrdem}/>
           <Route path="/estoque/edit/:id" exact component={EditEstoque}/>
+          <Route path="/Servicos" exact component={Servicos}/>
+          <Route path="/Servicos/edit/:id" exact component={EditServicos}/>
+          <Route path="/usuarios" exact component={Colaboradores}/>
+          <Route path="/usuarios/edit/:id" exact component={AdicionarColaborador}/>
+          <Route path="/usuarios/adicionar" exact component={AdicionarColaborador}/>
      </BrowserRouter>
   );
 }

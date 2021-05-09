@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} Serviços {% endblock %}
+{% block content %}
+<h1 style='text-align:center'>Cadastrar Novo Serviço</h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-primary" role="alert">
+    {{ msg }}
+  </div>
+  {% endfor %}
+{% endif %}
+{% endwith %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <div>
+        <form method="POST" action="/add/Servico">
+            <div class="form-group">
+                <label>Nome do Serviço:</label>
+                <input  id='nomeServico' name='nomeServico' type='text' placeholder="Nome do Serviço" size="80" class="form-control">
+            </div>
+            <div class="form-group">
+                <div style="width: 100%; text-align: center">
+                    <button id="submit" type="submit" class="btn novo-item" style='width: 200px'>Salvar</button>
+                </div>
+            </div> 
+
+        </form>
+    </div>
+    <!-- <script>
+        $('#quantidade').focusout(function() {
+            let today = new Date().toLocaleDateString();
+            $('#date_ins').val(today);
+            $('#submit').focus();
+        });
+    </script> -->
+{% endblock %}
