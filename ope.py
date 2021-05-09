@@ -427,8 +427,9 @@ def add(table):
                 senha = request.form['senha']
                 nome = request.form['nome']
                 adm = request.form['adm']
-                sql = "insert into Usuario values ('{}', '{}', '{}', '{}')".format(
-                    login, senha, nome, adm)
+                status = request.form['statusColaborador']
+                sql = "insert into Usuario values ('{}', '{}', '{}', '{}', {})".format(
+                    login, senha, nome, adm, status)
                 engine.execute(sql)
                 return redirect(reactPort + 'usuarios')
             
@@ -505,8 +506,9 @@ def edit(table, id):
                     login = request.form['Login']
                     senha = request.form['senha']
                     adm = request.form['adm']
-                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}' where id = {}".format(
-                        login, nome, senha, adm, id)
+                    status = request.form['statusColaborador']
+                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}', statusColaborador = {} where id = {}".format(
+                        login, nome, senha, adm, status, id)
                     query_result = engine.execute(sql)
                     return redirect(reactPort + '/usuarios')
                 return 'sem permissão'

@@ -56,6 +56,11 @@ const Colaboradores = () => {
                                         <div className="d-flex">
                                             <b>E-mail:</b>&nbsp;<span>{item['Login']}</span>
                                         </div>
+
+                                        <div className="d-flex">
+                                            <b>Status:</b>&nbsp;<span>{item['statusColaborador']}</span>
+                                        </div>   
+
                                     </div>
                                     <div>
                                         <a href={`/usuarios` + `/edit/` +item.Id}>Editar</a>
