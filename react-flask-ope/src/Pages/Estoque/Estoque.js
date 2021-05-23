@@ -47,7 +47,7 @@ const Estoque = () => {
     
 
     const addFunction = () => {
-        window.location.href = 'http://127.0.0.1:5000/add/Mat_P';
+        window.location.href = 'http://localhost:5000/add/Mat_P';
     }
 
     const deleteFunction = (id) => {
