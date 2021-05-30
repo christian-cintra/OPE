@@ -136,7 +136,7 @@ def ServicosAPI():
 def UsuariosAPI():
     if checaSession(g.user):
         query_result = engine.execute('select * from Usuario')
-        print('query_result', query_result)
+        
         return jsonify({'result': [dict(row) for row in query_result]})
     return redirect(url_for('login'))
 
