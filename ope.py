@@ -19,6 +19,8 @@ app.debug = True
 
 reactPort = "http://localhost:3000"
 
+admin = ''
+
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     login = db.Column(db.String(255))
@@ -32,7 +34,7 @@ class Usuario(db.Model):
         self.nome = nome
         self.adm = adm
 
-print(engine.table_names())
+
 
 @app.route('/')
 def rota_Raiz():
@@ -40,7 +42,6 @@ def rota_Raiz():
 
 @app.before_request
 def before_request():
-    # print('endpoint', )
     g.user = None
     if request.path == '/login':
         print('entrou')
@@ -52,11 +53,14 @@ def before_request():
         response = jsonify({})
         return response, 401
         
-
+        
 def checaPermissao(user):
-    if user.adm == 'S':
-        return True
-    return False
+    query_result = engine.execute("select * from Usuario where Login = '{}'".format(user))
+    for i in query_result:
+        if i[4] == 'S':
+            return True
+        else:
+            return False
 
 def checaSession(user):
     if 'user' in session:
@@ -74,13 +78,14 @@ def login():
     senha = request.form['password']
     print('senha', senha)
     g.loggeduser = Usuario.query.filter_by(login=login, senha=senha).first()
-
     print('user',  g.loggeduser)
+
     if g.loggeduser is None:
         flash('Incorrect email or password.')
         classeFlash = 'alert alert-danger'
     else:
         session['user'] = login
+        print('Valor de ADM', g.loggeduser.adm)
         return {}, 204
 
     # return render_template('index.html', classeFlash=classeFlash)            
@@ -98,8 +103,8 @@ def logout():
 @app.route('/api/estoque')
 def EstoqueAPI():
     if checaSession(g.user):
+        checaPermissao(g.user)
         query_result = engine.execute('select * from MateriaPrima')
-        print('query_result', query_result)
         return jsonify({'result': [dict(row) for row in query_result]})
     return redirect(url_for('login'))
 
@@ -123,7 +128,7 @@ def FiltroEstoqueAPI(filtro):
 def ServicosAPI():
     if checaSession(g.user):
         query_result = engine.execute('select * from Servico')
-        print('query_result', query_result)
+        print(Usuario)
         return jsonify({'result': [dict(row) for row in query_result]})
     return redirect(url_for('login'))
 
@@ -185,8 +190,6 @@ def FiltroOrdensDeServicoAPI():
 @app.route('/api/estoque/qntd/<int:id>/<int:qntd>', methods=['POST'])
 def UpdteEstoqueItemCount(id, qntd):
     if checaSession(g.user):
-        print('table ', table)
-        print('id ', id)
         sql = "update MateriaPrima set qtdedisponivel = {} where id = {}".format(qntd, id)
         resp = jsonify(success=True)
         return resp
@@ -492,7 +495,7 @@ def edit(table, id):
                 return redirect('http://localhost:3000')
 
             elif table == "Servicos":
-                if checaPermissao(g.loggedUser):                
+                if checaPermissao(g.user):                
                     nomeServico = request.form['nomeServico']
                     sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
                     query_result = engine.execute(sql)
@@ -500,7 +503,7 @@ def edit(table, id):
                 return 'Sem permissão'
 
             elif table == "Usuario":
-                if checaPermissao(g.loggedUser):
+                if checaPermissao(g.user):
                     table = "Usuario"
                     nome = request.form['nome']
                     login = request.form['Login']
@@ -536,7 +539,7 @@ def edit(table, id):
 def delete(table, id):
     if checaSession(g.user):
         if request.method == 'DELETE':
-            if checaPermissao(g.loggedUser):
+            if checaPermissao(g.user):
                 if table == "Mat_P":
                     sql = 'delete from materiaPrima where id = {}'.format(id)
                     engine.execute(sql)
@@ -546,13 +549,13 @@ def delete(table, id):
                 engine.execute(sql)
 
             elif table == "Servicos":
-                if checaPermissao(g.loggedUser):
+                if checaPermissao(g.user):
                     sql = 'delete from Servico where id = {}'.format(id)
                     engine.execute(sql)
                 return 'sem permissão'
 
             elif table == "Usuario":
-                if checaPermissao(g.loggedUser):
+                if checaPermissao(g.user):
                     sql = 'delete from Usuario where id = {}'.format(id)
                     engine.execute(sql)
                 return 'sem permissão'
