@@ -19,7 +19,7 @@ margin-top: 20px;
 }
 
 main {
-  margin: 0 min(120px, 5em);
+  padding: 0 min(120px, 5em);
 }
 
 .pointer {
@@ -125,59 +125,6 @@ button{
   .title {
       margin-left: 10px;
   }
-}
-
-
-/* Ordens de serviço */
-.itens-ordens {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-grid-template-areas: 'ordens-novas ordens-agendadas ordens-executadas';
-}
-
-.itens-ordens div {
-  margin-left: 5px;
-  margin-bottom: 15px;
-}
-
-.ordens-novas {
-  grid-area: ordens-novas;
-}
-
-.ordens-agendadas {
-  grid-area: ordens-agendadas;
-}
-
-.ordens-executadas {
-  grid-area: ordens-executadas;
-}
-
-.add-option {
-  font-size: 30px;
-  font-weight: bold;
-  color: var(--blue-color);
-  cursor: pointer;
-}
-
-/* Ordem de serviço edicao */
-.os-form {
-  display: grid;
-  grid-template-areas: "osdata osagendamentos"
-  "osmateriais osmateriais";
-  column-gap: 2em;
-  grid-template-columns: 3fr 2fr;
-}
-
-.os-data {
-  grid-area: osdata;
-}
-
-.os-agendamentos {
-  grid-area: osagendamentos;
-}
-
-.os-materiais {
-  grid-area: osmateriais;
 }
 
 /* Login */
