@@ -500,7 +500,9 @@ def edit(table, id):
                     sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
                     query_result = engine.execute(sql)
                     return redirect(url_for('Servicos'))
-                return 'Sem permissão'
+                flash('Seu usuário não possui permissão para executar esta ação')
+                # return redirect(reactPort+'Serviços')
+                # return 'Sem permissão'
 
             elif table == "Usuario":
                 if checaPermissao(g.user):
@@ -508,9 +510,9 @@ def edit(table, id):
                     nome = request.form['nome']
                     login = request.form['Login']
                     senha = request.form['senha']
-                    adm = request.form['adm']
+                    adm = 'N'
                     status = request.form['statusColaborador']
-                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}' adm = '{}', statusColaborador = {} where id = {}".format(
+                    sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}', adm = '{}', statusColaborador = {} where id = {}".format(
                         login, nome, senha, adm, status, id)
                     query_result = engine.execute(sql)
                     return redirect(reactPort + '/usuarios')
@@ -518,7 +520,7 @@ def edit(table, id):
 
             elif table == "":
                 pass
-            flash('Registro alterado com sucesso')
+            # flash('Registro alterado com sucesso')
             return redirect(url_for('Estoque'))
 
         if(table == "Ordem_S"):
