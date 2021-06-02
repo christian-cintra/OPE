@@ -89,7 +89,7 @@ const Estoque = () => {
                                 <th scope="col">Cadastrado em</th>
                                 <th scope="col">Alterado em</th>
                                 <th scope="col"></th>
-                                <th scope="col"></th>
+                                {/* <th scope="col"></th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -98,15 +98,15 @@ const Estoque = () => {
                                 <td>{item.id}</td>
                                 <td>{item['QtdeDisponivel']}</td>
                                 <td>{item['nome']}</td>
-                                <td>{item['valor_venda']}</td>
+                                <td>R$ {item['valor_venda']}</td>
                                 <td>{item['data_abastecimento']}</td>
                                 <td>{item['data_atualização']}</td>
                                 <td>
                                     <i class="fa fa-edit icon pointer" onClick={() => (window.location = `http://127.0.0.1:5000/edit/Mat_P/${item.id}`)}></i>
                                 </td>
-                                <td>
+                                {/* <td>
                                     <i class="fa fa-remove icon pointer" onClick={() => deleteFunction(item.id)}></i>
-                                </td>
+                                </td> */}
                                 </tr>
                             ))}
                             

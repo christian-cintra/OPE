@@ -57,7 +57,7 @@ const EditColaborador = () => {
 
                     <div className="form-group">
                         <label>Senha:</label>
-                        <input id='senha' name='senha' type='number' value={item.senha} placeholder="******" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, senha: event.target.value})}/>            
+                        <input id='senha' name='senha' type='text' value={item.senha} placeholder="******" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, senha: event.target.value})}/>            
                     </div>
 
                     <div className="form-group">

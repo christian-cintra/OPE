@@ -49,9 +49,9 @@ const Servicos = () => {
                                 <td>
                                     <i class="fa fa-edit icon pointer" onClick={() => (window.location = `http://127.0.0.1:5000/edit/Servicos/${item.id}`)}></i>
                                 </td>
-                                <td>
+                                {/* <td>
                                     <i class="fa fa-remove icon pointer" onClick={() => deleteFunction(item.id)}></i>
-                                </td>
+                                </td> */}
                                 </tr>
                             ))}
                             

@@ -14,7 +14,7 @@ engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, {})
 app.config['SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc:///?odbc_connect=%s" % params
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
-app.permanent_session_lifetime = timedelta(minutes=15)
+app.permanent_session_lifetime = timedelta(minutes=45)
 app.debug = True
 
 reactPort = "http://localhost:3000"
@@ -96,7 +96,7 @@ def login():
 def logout():
     session.pop('user', None)
     flash('You have logged out')
-    return redirect(url_for('login'))
+    return redirect(reactPort + "/autenticacao")
 
 
 
@@ -479,7 +479,7 @@ def edit(table, id):
                 query_result = engine.execute(sql)
                 print('query', query_result)
                 flash('Item alterado com sucesso')
-                return redirect(url_for('Estoque'))
+                return redirect(reactPort+'/Estoque')
             
             elif table == "Ordem_S":
                 table = "Ordem_S"
@@ -492,7 +492,7 @@ def edit(table, id):
                 sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
                     dt, vl, vs, fs, st, re, id)
                 query_result = engine.execute(sql)
-                return redirect('http://localhost:3000')
+                return redirect(reactPort)
 
             elif table == "Servicos":
                 if checaPermissao(g.user):                

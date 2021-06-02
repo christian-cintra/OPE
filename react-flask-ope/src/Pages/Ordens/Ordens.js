@@ -6,6 +6,7 @@ import OrdemCard from './Card';
 const Ordens = () => {
     const [estoque, setEstoque] = useState([]);
     const [novasOrdens, setNovasOrdens] = useState([]);
+    const [ordensAguardando, setOrdensAguardando] = useState([]);
     const [ordensAgendadas, setOrdensAgendadas] = useState([]);
     const [ordensExecutadas, setOrdensExecutadas] = useState([]);
     
@@ -26,6 +27,7 @@ const Ordens = () => {
         }).then(data => {
             console.log('estoque', data)
             setNovasOrdens(data.result.filter((ordem) => ordem.fase == 1))
+            setOrdensAguardando(data.result.filter((ordem) => ordem.fase == 2))
             setOrdensAgendadas(data.result.filter((ordem) => ordem.fase == 3))
             setOrdensExecutadas(data.result.filter((ordem) => ordem.fase == 4))
 
@@ -82,6 +84,7 @@ const Ordens = () => {
         .then(data => {
             console.log('estoque', data)
             setNovasOrdens(data.result.filter((ordem) => ordem.fase == 1))
+            setOrdensAguardando(data.result.filter((ordem) => ordem.fase == 2))
             setOrdensAgendadas(data.result.filter((ordem) => ordem.fase == 3))
             setOrdensExecutadas(data.result.filter((ordem) => ordem.fase == 4))
 
@@ -108,9 +111,12 @@ const Ordens = () => {
                         setNovasOrdens([...novasOrdens.filter(item => item.id != id)])
                         break;
                     case 2:
-                        setOrdensAgendadas([...ordensAgendadas.filter(item => item.id != id)])
+                        setOrdensAguardando([...ordensAguardando.filter(item => item.id != id)])
                         break;
                     case 3:
+                        setOrdensAgendadas([...ordensAgendadas.filter(item => item.id != id)])
+                        break;
+                    case 4:
                         setOrdensExecutadas([...ordensExecutadas.filter(item => item.id != id)])
                         break;
                     default:
@@ -136,7 +142,7 @@ const Ordens = () => {
                         <select defaultValue="0" value={filtroFase} onChange={(event) => setFiltroFase(event.target.value)}>
                             <option value="0">Selecione</option>
                             <option value="1">Solicitada</option>
-                            <option value="2">Em negociação</option>
+                            <option value="2">Aguardando Agenda</option>
                             <option value="3">Agendada</option>
                             <option value="4">Executada</option>
                         </select>
@@ -167,6 +173,13 @@ const Ordens = () => {
                         <h3>Novas</h3>
                         
                         {novasOrdens.map((row) => (
+                            <OrdemCard row={row} editFunction={editFunction} deleteFunction={deleteFunction} />
+                        ))}
+                    </div>
+
+                    <div className="ordens-aguardando">
+                        <h3>Aguardando Agenda</h3>
+                        {ordensAguardando.map((row) => (
                             <OrdemCard row={row} editFunction={editFunction} deleteFunction={deleteFunction} />
                         ))}
                     </div>
