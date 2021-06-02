@@ -3,8 +3,7 @@ include {
 }
 
 terraform {
-#  source = "git@github.com:<claudio/ope/terraform-iac/cintra-instalacoes-tf-blueprints>.git//aws/network?ref=master"
-  source = "/home/christian/Documents/cintra-instalacoes/OPE/terraform-iac/cintra-instalacoes-tf-blueprints/aws/network"
+  source = "git@github.com:ClaudioToledoGHT/OPE/iac/cintra-instalacoes-tf-blueprints.git//aws/network?ref=master"
 }
 
 inputs = {
