@@ -18,8 +18,8 @@ const OrdemCard = ({row, editFunction, deleteFunction}) => {
                     </div>
 
                     <div className="links">
-                        <a href="#" class="card-link" onClick={() => deleteFunction(row.id, 1)}>Remover</a>
-                        <a href="#" class="card-link" onClick={() => editFunction(row.id)}>Editar</a>
+                        <a href="#" class="card-link" style={{color: 'red'}} onClick={() => deleteFunction(row.id, 1)}><i class="fa fa-remove icon pointer"></i></a>
+                        <a href="#" class="card-link" onClick={() => editFunction(row.id)}><i class="fa fa-edit icon pointer"></i></a>
                     </div>
                 </div>
         </div>

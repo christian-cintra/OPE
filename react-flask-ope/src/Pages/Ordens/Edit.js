@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Ordens.css';
   
 const EditOrdem = () => {
     const [item, setItem] = useState({});
@@ -321,7 +322,7 @@ const EditOrdem = () => {
                     <br/>
                     <br/>
 
-                    <div className="flex os-materiais">
+                    <div className=" os-materiais">
 
                         <div>
                             <h3>Matérias Primas requeridas</h3>
@@ -446,9 +447,11 @@ const EditOrdem = () => {
                                       
                                 }}>Salvar itens</button>
                             </div>
-                        </div>
+                        </div>                        
 
-                        <div style={{maxWidth: '300px'}}>
+                    </div>
+
+                    <div className="os-materias-primas" style={{maxWidth: '300px'}}>
                             <h5><b>Selecione as Matérias Primas necessárias</b></h5>
 
                             <div className="list-group">
@@ -475,8 +478,6 @@ const EditOrdem = () => {
                                 ))}
                             </div>
                         </div>
-
-                    </div>
                 </form>
 
                 
