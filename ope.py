@@ -499,8 +499,8 @@ def edit(table, id):
                     nomeServico = request.form['nomeServico']
                     sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
                     query_result = engine.execute(sql)
+                    flash('Seu usuário não possui permissão para executar esta ação')
                     return redirect(url_for('Servicos'))
-                flash('Seu usuário não possui permissão para executar esta ação')
                 # return redirect(reactPort+'Serviços')
                 # return 'Sem permissão'
 
