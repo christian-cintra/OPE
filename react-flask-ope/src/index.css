@@ -26,6 +26,9 @@ code {
   margin-bottom: 20px;
   border: 2px solid var(--primary-color);
   border-radius: 10px;
+  width: 50%;
+  margin: 0 auto;
+  margin-bottom: 2em;
 }
 
 .users-card-body {

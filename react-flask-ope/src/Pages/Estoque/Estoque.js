@@ -7,6 +7,10 @@ const Estoque = () => {
 
     const [loading, setLoading] = useState(true);
 
+    
+
+    
+
     useEffect(() => {
         fetch('/api/estoque').then(res => res.json()).then(data => {
             console.log('estoque', data)

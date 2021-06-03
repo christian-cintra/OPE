@@ -1,0 +1,145 @@
+/* Ordens de serviço */
+main, #root {
+    background: #f7f7f7;
+}
+
+h3 {
+    color: #808F9B;
+    text-align: left;
+    padding-top: 10px;
+    text-transform: uppercase;
+    font-size: 1.5em;
+    margin-left: 10px;
+}
+
+.links {
+    justify-content: space-between;
+    display: flex;
+}
+
+h5 {
+    color: #2e2e2e;
+    text-align: left;
+}
+
+.os-card {
+    border-radius: 5px;
+    border-radius: 5px;
+    margin: 10px 0 2em 0;
+}
+
+.itens-ordens {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-areas: 'ordens-novas ordens-aguardando ordens-agendadas ordens-executadas';
+  column-gap: 1em;
+  }
+  
+  .itens-ordens div {
+    margin-left: 5px;
+    max-width: 22vw;
+    background: white;
+    padding: 5px;
+    text-align: -webkit-center;
+    height: fit-content;
+  }
+  
+  .ordens-novas {
+    grid-area: ordens-novas;
+    border-top: 8px solid #121830;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+  }
+
+.ordens-novas .os-card {
+    border-left: 4px solid #121830;
+    width: 18em;
+    text-align-last: left;
+    -webkit-box-shadow: 6px 5px 7px -1px #121830;
+    box-shadow: 6px 5px 7px -1px #121830;
+}
+
+.ordens-aguardando {
+    grid-area: ordens-aguardando;
+    border-top: 8px solid #66b8b6;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+}
+
+.ordens-aguardando .os-card {
+    border-left: 4px solid #66b8b6;
+    width: 18em;
+    text-align-last: left;
+    -webkit-box-shadow: 6px 5px 7px -1px #66b8b6;
+    box-shadow: 6px 5px 7px -1px #66b8b6;
+}
+
+  
+  .ordens-agendadas {
+    grid-area: ordens-agendadas;
+    border-top: 8px solid var(--blue-color);
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+}
+
+.ordens-agendadas .os-card {
+    border-left: 4px solid var(--blue-color);
+    width: 18em;
+    text-align-last: left;
+    -webkit-box-shadow: 6px 5px 7px -1px var(--blue-color);
+    box-shadow: 6px 5px 7px -1px var(--blue-color);
+}
+
+.ordens-executadas {
+    grid-area: ordens-executadas;
+    border-top: 8px solid #1df589;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+   
+}
+
+.ordens-executadas .os-card {
+    border-left: 4px solid #1df589;
+    width: 18em;
+    text-align-last: left;
+    -webkit-box-shadow: 6px 5px 7px -1px #1df589;
+    box-shadow: 6px 5px 7px -1px #1df589;
+}
+
+  
+  .add-option {
+    font-size: 30px;
+    font-weight: bold;
+    color: var(--blue-color);
+    cursor: pointer;
+  }
+  
+  /* Ordem de serviço edicao */
+  .os-form {
+    display: grid;
+    grid-template-areas: "osdata osagendamentos"
+    "osmateriais os-materias-primas";
+    column-gap: 2em;
+    grid-template-columns: 3fr 2fr;
+  }
+  
+  .os-data {
+    grid-area: osdata;
+  }
+  
+  .os-agendamentos {
+    grid-area: osagendamentos;
+  }
+  
+  .os-materiais {
+    grid-area: osmateriais;
+  }
+
+  .os-materias-primas {
+    grid-area: os-materias-primas;
+  }
+  
+  .form-group {
+    max-width: 300px;
+    margin-bottom: 1rem;
+}

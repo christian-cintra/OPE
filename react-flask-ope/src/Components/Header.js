@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../Assets/logo.jpg';
+import logo from '../Assets/logo_1.jpeg';
 import { Link, Navi } from 'react-router-dom';
 
 const Header = () => {

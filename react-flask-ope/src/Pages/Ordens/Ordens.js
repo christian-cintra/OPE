@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Route, Navigate } from 'react-router-dom';
 import Loading from '../../Components/Loading';
 import OrdemCard from './Card';
+import './Ordens.css';
+// import Board from 'react-trello';
   
 const Ordens = () => {
     const [estoque, setEstoque] = useState([]);
@@ -15,6 +17,7 @@ const Ordens = () => {
     const [filterText, setFilterText] = useState('');
     const [filtroFase, setFiltroFase] = useState('0');
     const [filtroPgto, setFiltroPgto] = useState('0');
+
 
     useEffect(() => {
         fetch('/api/ordensdeservico').then(res => {
