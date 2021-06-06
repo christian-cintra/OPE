@@ -11,6 +11,7 @@ import Ordens from './Pages/Ordens/Ordens';
 import Servicos from './Pages/Servicos/Servicos';
 import EditServicos from './Pages/Servicos/Edit.js';
 import Login from './Pages/Login/Login.js';
+import Logout from './Components/Logout.js';
 
 function App(props) {
   const [placeholder, setPlaceholder] = useState('Hi');
@@ -21,7 +22,8 @@ function App(props) {
   return (
     <BrowserRouter>
           <Route path="/autenticacao" component={Login}/>
-          
+
+          <Route path="/logout" component={Logout}/>
           {
             window.location.href.indexOf("autenticacao") == -1 ? <Header/>:null
           }

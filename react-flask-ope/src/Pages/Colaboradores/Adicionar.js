@@ -47,17 +47,17 @@ const EditColaborador = () => {
 
                     <div className="form-group">
                         <label>Login:</label>
-                        <input id='Login' name='Login' type='text' value ={item.Login} placeholder="funcionario@email.com" size="80" className="form-control" onChange={(event) => setItem({...item, Login: event.target.value})} />
+                        <input id='Login' name='Login' type='email' value ={item.Login} required="required" placeholder="funcionario@email.com" size="80" className="form-control" onChange={(event) => setItem({...item, Login: event.target.value})} />
                     </div>
 
                     <div className="form-group">
                         <label>Nome:</label>
-                        <input id='nome' name='nome' type='text' value={item.nome} placeholder="Digite o nome do funcionário" size="80"  className="form-control" onChange={(event) => setItem({...item, valorPecas: event.target.value})}/>
+                        <input id='nome' name='nome' type='text' value={item.nome} required="required" placeholder="Digite o nome do funcionário" size="80"  className="form-control" onChange={(event) => setItem({...item, valorPecas: event.target.value})}/>
                     </div>
 
                     <div className="form-group">
                         <label>Senha:</label>
-                        <input id='senha' name='senha' type='text' value={item.senha} placeholder="******" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, senha: event.target.value})}/>            
+                        <input id='senha' name='senha' type='password' value={item.senha} required="required" placeholder="******" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, senha: event.target.value})}/>            
                     </div>
 
                     <div className="form-group">

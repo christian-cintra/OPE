@@ -49,27 +49,27 @@ const EditEstoque = () => {
 
                     <div className="form-group">
                         <label>Nome:</label>
-                        <input id='nome' name='nome' type='text' value ={item.nome} placeholder="Digite o Nome" size="80" className="form-control" onChange={(event) => setItem({...item, nome: event.target.value})} />
+                        <input id='nome' name='nome' type='text' value ={item.nome} required="required" placeholder="Digite o Nome" size="80" className="form-control" onChange={(event) => setItem({...item, nome: event.target.value})} />
                     </div>
 
                     <div className="form-group">
                         <label>Valor de Compra:</label>
-                        <input id='priceBuy' name='priceBuy' type='number' step="0.01" min="0" value={item.valor_compra} placeholder="Digite o Preço" size="80"  className="form-control" onChange={(event) => setItem({...item, valor_compra: event.target.value})}/>
+                        <input id='priceBuy' name='priceBuy' type='number' step="0.01" min="0.01" required="required" value={item.valor_compra} placeholder="Digite o Preço" size="80"  className="form-control" onChange={(event) => setItem({...item, valor_compra: event.target.value})}/>
                     </div>
 
                     <div className="form-group">
                         <label> Valor de Venda:</label>
-                        <input id='priceSell' name='priceSell' type='number' step="0.01" min="0" value={item.valor_venda} placeholder="Digite o Preço" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, valor_venda: event.target.value})}/>            
+                        <input id='priceSell' name='priceSell' type='number' step="0.01" min="0.01" required="required" value={item.valor_venda} placeholder="Digite o Preço" size="80" className="form-control" className="form-control" onChange={(event) => setItem({...item, valor_venda: event.target.value})}/>            
                     </div>
 
                     <div className="form-group">
                         <label> Quantidade:</label>
-                        <input id='quantidade' name='quantidade' type='number' min ="1" value ={item.QtdeDisponivel} placeholder="Informe a quantidade" size="80" className="form-control" onChange={(event) => setItem({...item, QtdeDisponivel: event.target.value})}/>           
+                        <input id='quantidade' name='quantidade' type='number' min ="1" required="required" value ={item.QtdeDisponivel} placeholder="Informe a quantidade" size="80" className="form-control" onChange={(event) => setItem({...item, QtdeDisponivel: event.target.value})}/>           
                     </div>
 
                     <div className="form-group">
                         <label> Data:</label>
-                        <input id='date_att' name='date_att' type='datetime' value={item.data_abastecimento} placeholder="Informe a data" size="80" className="form-control" onChange={(event) => setItem({...item, data_abastecimento: event.target.value})}/>   
+                        <input id='date_att' name='date_att' type='datetime' required="required" value={item.data_abastecimento} placeholder="Informe a data" size="80" className="form-control" onChange={(event) => setItem({...item, data_abastecimento: event.target.value})}/>   
                     </div>
 
                     <div className="form-group">

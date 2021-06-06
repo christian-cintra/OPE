@@ -166,12 +166,12 @@ const EditOrdem = () => {
                     <div className="os-data">
                         <div className="form-group">
                             <label>Detalhes:</label>
-                            <input id='detalhes' name='detalhes' type='text' value ={item.detalhes} required placeholder="Digite os detalhes da OS" size="80" className="form-control" onChange={(event) => setItem({...item, detalhes: event.target.value})} />
+                            <input id='detalhes' name='detalhes' type='text' value ={item.detalhes} required="required" placeholder="Digite os detalhes da OS" size="80" className="form-control" onChange={(event) => setItem({...item, detalhes: event.target.value})} />
                         </div>
 
                         <div className="form-group">
                             <label>Preço das Peças:</label>
-                            <input id='valorPecas' name='valorPecas' type='number' step="0.01" min="0" value={item.valorPecas} required placeholder="Digite o valor das peças" size="80"  className="form-control" onChange={(event) => setItem({...item, valorPecas: event.target.value})}/>
+                            <input id='valorPecas' name='valorPecas' type='number' step="0.01" min="0.01" value={item.valorPecas} required="required" placeholder="Digite o valor das peças" size="80"  className="form-control" onChange={(event) => setItem({...item, valorPecas: event.target.value})}/>
                         </div>
 
                         <div className="form-group">
@@ -187,7 +187,7 @@ const EditOrdem = () => {
 
                         <div className="form-group">
                             <label>Taxa de Serviço:</label>
-                            <input id='valorServico' name='valorServico' type='number' step="0.01" min="0" value={item.valorServico} required placeholder="Digite o Preço" size="80" className="form-control" onChange={(event) => setItem({...item, valorServico: event.target.value})}/>            
+                            <input id='valorServico' name='valorServico' type='number' step="0.01" min="0.01" value={item.valorServico} required="required" placeholder="Digite o Preço" size="80" className="form-control" onChange={(event) => setItem({...item, valorServico: event.target.value})}/>            
                         </div>
 
                         <div className="form-group">

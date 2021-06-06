@@ -14,7 +14,7 @@ engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, {})
 app.config['SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc:///?odbc_connect=%s" % params
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.secret_key = "oi"
-app.permanent_session_lifetime = timedelta(minutes=45)
+app.permanent_session_lifetime = timedelta(minutes=120)
 app.debug = True
 
 reactPort = "http://localhost:3000"
@@ -54,6 +54,7 @@ def before_request():
         return response, 401
         
         
+        
 def checaPermissao(user):
     query_result = engine.execute("select * from Usuario where Login = '{}'".format(user))
     for i in query_result:
@@ -69,8 +70,11 @@ def checaSession(user):
     
     
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
+    if request.method == 'GET':
+        return redirect(reactPort+'/autenticacao')
+
     classeFlash = 'alert alert-success'
 
     session.pop('user', None)
@@ -94,9 +98,10 @@ def login():
 
 @app.route('/logout')
 def logout():
+    print('deslogou')
     session.pop('user', None)
-    flash('You have logged out')
-    return redirect(reactPort + "/autenticacao")
+    #flash('You have logged out')
+    return redirect(url_for('login'))
 
 
 

@@ -38,7 +38,7 @@ const Estoque = () => {
         <main className="login-page">
             <form class="form-signin" action="/login" method="POST">
                 <img class="mb-4" src={logo} alt="" width="300" height="300" />
-                <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+                <h1 class="h3 mb-3 font-weight-normal">Bem Vindo!</h1>
                 <label for="inputEmail" class="sr-only">Email address</label>
                 <div style={{maxWidth: '300px', textAlign: 'center', margin: 'auto', marginBottom: '20px'}}>
                     <input name='email' type="email" id="inputEmail" class="form-control" placeholder="E-mail" value={login} onChange={(event) => setLogin(event.target.value)} required autofocus />

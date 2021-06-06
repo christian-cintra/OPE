@@ -45,7 +45,7 @@ const EditServicos = () => {
 
                     <div className="form-group">
                         <label>Nome:</label>
-                        <input id='nome' name='nome' type='text' value ={item.nome} placeholder="Digite o Nome" size="80" className="form-control" onChange={(event) => setItem({...item, nome: event.target.value})} />
+                        <input id='nome' name='nome' type='text' value ={item.nome} required="required" placeholder="Digite o Nome" size="80" className="form-control" onChange={(event) => setItem({...item, nome: event.target.value})} />
                     </div>
                     <div className="form-group">
                         <div style={{width:'100%', textAlign: 'center'}}>
