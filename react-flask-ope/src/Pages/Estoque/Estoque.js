@@ -4,19 +4,30 @@ import Loading from '../../Components/Loading';
 const Estoque = () => {
     const [estoque, setEstoque] = useState([]);
     const [filterText, setFilterText] = useState('');
-
+    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    
-
-    
 
     useEffect(() => {
-        fetch('/api/estoque').then(res => res.json()).then(data => {
-            console.log('estoque', data)
-            setEstoque(data.result);
+        fetch('/api/estoque')
+        .then(function(response) {
+            console.log(response.status); // Will show you the status
+            if (!response.ok) {
+
+                if(response.status == 401){
+                    window.location.replace('/autenticacao');
+                }
+            }
+            return response.json();
+        }).then(data => {
+            if(data?.result)
+                setEstoque(data.result);
             setLoading(false);
-          });
+        })
+        .catch(e => {
+            console.log('e', e)
+            setError('Ops, não foi possível conectar! Por favor, tente novamente mais tarde')
+        });
     }, []);
 
     const ordenarEstoque = () => {

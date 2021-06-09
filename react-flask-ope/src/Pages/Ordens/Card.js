@@ -16,6 +16,8 @@ const OrdemCard = ({row, editFunction, deleteFunction}) => {
                     <div className="d-flex ml-0">
                         <b class="card-text primary-color">Responsável:&nbsp;</b>
                         <p class="card-text">{row.responsavel ? row.responsavel : '-'}</p>
+                        <br/>
+                        <p class="card-text">{row.dataexe ? 'Executado em' + new Date(row.dataexe).toLocaleDateString() : ''}</p>
                     </div>
 
                     <div className="links">

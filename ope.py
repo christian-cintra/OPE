@@ -102,7 +102,7 @@ def logout():
     print('deslogou')
     session.pop('user', None)
     #flash('You have logged out')
-    return redirect(url_for('login'))
+    return redirect(reactPort + 'autenticacao')
 
 
 
@@ -149,6 +149,7 @@ def UsuariosAPI():
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
     if checaSession(g.user):
+<<<<<<< HEAD
         data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
         for row in data:
@@ -157,7 +158,7 @@ def OrdensDeServicoAPI():
                 engine.execute(sql)
 
         data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
-
+=======
         return jsonify({'result': [dict(row) for row in data]})
 
     return redirect(url_for('login'))
