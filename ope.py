@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, tzinfo
 import urllib
+import pytz
 import pyodbc
 
 app = Flask(__name__)
@@ -148,7 +149,14 @@ def UsuariosAPI():
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
     if checaSession(g.user):
-        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
+
+        for row in data:
+            if row.dataexe != None and row.dataexe - datetime.now() > timedelta(minutes=5):
+                sql = "UPDATE ordensdeservico SET fase = 5 where id = {}".format(row.id)
+                engine.execute(sql)
+
+        data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
         return jsonify({'result': [dict(row) for row in data]})
 
@@ -362,6 +370,7 @@ def Estoque():
     return redirect(url_for('login'))
 
 
+
 @app.route('/Usuarios')
 def Usuarios():
     if checaSession(g.user):
@@ -415,10 +424,11 @@ def add(table):
                 servicoExecutado = request.form['servicoExecutado']
                 vs = request.form['valorServico']
                 fs = request.form['fase']
+                dataexecusao = request.form['dataexe']
                 st = request.form['statusPagamento']
                 responsavel = request.form['responsavel_id']
-                sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {})".format(
-                    dt, vl, vs, fs, st, responsavel, servicoExecutado)
+                sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {}, '{}')".format(
+                    dt, vl, vs, fs, st, responsavel, servicoExecutado, dataexecusao)
                 engine.execute(sql)
                 flash('Ordem de Serviço cadastrada com sucesso.')
                 return redirect(reactPort)
@@ -492,10 +502,11 @@ def edit(table, id):
                 vl = request.form['valorPecas']
                 vs = request.form['valorServico']
                 fs = request.form['fase']
+                dataexecusao = request.form['dataexe']
                 st = request.form['statusPagamento']
                 re = request.form['responsavel_id']
-                sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={} where id = {}".format(
-                    dt, vl, vs, fs, st, re, id)
+                sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={}, dataexe = '{}' where id = {}".format(
+                    dt, vl, vs, fs, st, re,dataexecusao, id)
                 query_result = engine.execute(sql)
                 return redirect(reactPort)
 

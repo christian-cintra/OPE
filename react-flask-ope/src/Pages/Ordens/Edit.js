@@ -117,6 +117,8 @@ const EditOrdem = () => {
           });
 
     }, []);
+    
+
 
     const excluirAgendamento = (agendamento) => {
         console.log('remover')
@@ -198,8 +200,10 @@ const EditOrdem = () => {
                             <option value={2}>2 - Agendamento</option>
                             <option value={3}>3 - Agendada</option>
                             <option value={4}>4 - Executada</option>
+
                         </select>         
                         </div>
+                        <input name="dataexe" id="dataexe" type="hidden" size="40" value={item.fase == 4 ? new Date().toJSON() : null}/>
 
                         <div className="form-group">
                             <label>Status do Pagamento:</label>
@@ -334,22 +338,22 @@ const EditOrdem = () => {
                                             <span className="add-option" onClick={() => {
 
                                                 var quantidadeInvalida = false;
-                                                var itemEstoque;
-                                                const newList = estoqueItensUtilizado.map((materia) => {
-                                                    if (materia.id === item.id) {
-                                                        itemEstoque = estoque.find((e) => e.id == item.id);
-                                                        
+                                                var itensEstoque = [...estoque];
 
+                                                const newList = estoqueItensUtilizado.map((materia) => {
+
+                                                    var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+                                                    if (materia.id === item.id) {
+                                                                                                   
                                                         if(item.Quantidade + 1 > itemEstoque.QtdeDisponivel){
                                                             alert('Quantidade indisponível')
                                                             quantidadeInvalida = true;
                                                         }
 
-                                                    var materiaUtilizada = {...materia};
-                                                    materiaUtilizada.Quantidade = materiaUtilizada.Quantidade +1;
-                                                    materiaUtilizada.QtdeDisponivel = materiaUtilizada.QtdeDisponivel -1;
+                                                    materia.Quantidade = materia.Quantidade +1;
+                                                    materia.QtdeDisponivel = materia.QtdeDisponivel -1;
                                                     }
-                                                    return materiaUtilizada;
+                                                    return materia;
                                                 })
                                                 if(!quantidadeInvalida){
                                                     return setEstoqueItensUtilizado([...newList])
@@ -362,6 +366,7 @@ const EditOrdem = () => {
                                                     const newList = estoqueItensUtilizado.map((materia) => {
                                                     
                                                         var itemEstoque = itensEstoque.find((e) => e.id == item.id);
+
                                                         if (materia.id === item.id) {
 
                                                             var materiaUtilizada = {...materia};
@@ -388,7 +393,7 @@ const EditOrdem = () => {
                                                     })
                                                     
                                                     
-                                                    
+
                                                     console.log(itensEstoque)
                                                 // setEstoque(itensEstoque)
                                                 console.log(itensEstoque)

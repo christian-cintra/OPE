@@ -12,6 +12,7 @@ const OrdemCard = ({row, editFunction, deleteFunction}) => {
                     <p class="card-text">Serviço:&nbsp; R${row.valorServico}</p>
                     <p class="card-text">Pagamento:&nbsp; {row.statusPagamento}</p>
 
+
                     <div className="d-flex ml-0">
                         <b class="card-text primary-color">Responsável:&nbsp;</b>
                         <p class="card-text">{row.responsavel ? row.responsavel : '-'}</p>
