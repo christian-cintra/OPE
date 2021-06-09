@@ -5,8 +5,10 @@ import avatar from '../../Assets/avatar.png';
 const Colaboradores = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
+    const [isADM, setIsADM] = useState(false);
 
     useEffect(() => {
+        setIsADM(localStorage.getItem('adm') == "true" ? true : false)
             fetch('/api/usuarios')
             .then(function(response) {
                 console.log(response.status); // Will show you the status
@@ -50,7 +52,7 @@ const Colaboradores = () => {
             <main>
                 <div className="flex header-container">
                     <h1 className="title">Colaboradores</h1>
-                    <button type="button" className="btn novo-item" onClick={addFunction}>Novo item</button>
+                    {isADM && <button type="button" className="btn novo-item" onClick={addFunction}>Novo item</button>}
                 </div>
 
                 {error != null ? <p className="error">{error}</p>
@@ -82,7 +84,7 @@ const Colaboradores = () => {
 
                                         </div>
                                         <div>
-                                            <a href={`/usuarios` + `/edit/` +item.Id}>Editar</a>
+                                            {isADM && <a href={`/usuarios` + `/edit/` +item.Id}>Editar</a>}
                                         </div>
                                 </div>
 

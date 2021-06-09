@@ -44,7 +44,9 @@ def rota_Raiz():
 @app.before_request
 def before_request():
     g.user = None
-    if request.path == '/login':
+    if request.path == 'logout':
+        print('logging out')
+    elif request.path == '/login':
         print('entrou')
         pass
     elif 'user' in session:
@@ -91,7 +93,9 @@ def login():
     else:
         session['user'] = login
         print('Valor de ADM', g.loggeduser.adm)
-        return {}, 204
+        return jsonify({'data': {
+            'permission': g.loggeduser.adm
+        }}), 200
 
     # return render_template('index.html', classeFlash=classeFlash)            
     response = {}
@@ -151,10 +155,10 @@ def OrdensDeServicoAPI():
     if checaSession(g.user):
         data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
-        for row in data:
-            if row.dataexe != None and row.dataexe - datetime.now() > timedelta(minutes=5):
-                sql = "UPDATE ordensdeservico SET fase = 5 where id = {}".format(row.id)
-                engine.execute(sql)
+        # for row in data:
+        #     if row.dataexe != None and row.dataexe - datetime.now() > timedelta(minutes=5):
+        #         sql = "UPDATE ordensdeservico SET fase = 5 where id = {}".format(row.id)
+        #         engine.execute(sql)
         return jsonify({'result': [dict(row) for row in data]})
 
     return redirect(url_for('login'))
@@ -520,16 +524,20 @@ def edit(table, id):
             elif table == "Usuario":
                 if checaPermissao(g.user):
                     table = "Usuario"
-                    nome = request.form['nome']
-                    login = request.form['Login']
-                    senha = request.form['senha']
+
+                    payload = request.get_json()
+                    nome = payload.nome
+                    login = payload.login
+                    senha = payload.senha
                     adm = 'N'
                     status = request.form['statusColaborador']
                     sql = "update Usuario set Login = '{}', nome = '{}', senha = '{}', adm = '{}', statusColaborador = {} where id = {}".format(
                         login, nome, senha, adm, status, id)
                     query_result = engine.execute(sql)
                     return redirect(reactPort + '/usuarios')
-                return 'sem permissão'
+                    
+                response = jsonify({})
+                return response, 403
 
             elif table == "":
                 pass

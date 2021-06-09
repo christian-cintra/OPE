@@ -21,15 +21,16 @@ const Estoque = () => {
             body: data
         }).then(res => {
             console.log('res', res)
-
+            
             if(res.status == 401)
                 setErrorText("Dados inválidos")
             else
                 window.location = "/"
-
+            
             return res.json()
         })
         .then(res =>{
+            localStorage.setItem('adm', res.data.permission == 'S')
             console.log('res', res)
         })
     }
