@@ -533,10 +533,12 @@ def edit(table, id):
                     nomeServico = request.form['nomeServico']
                     sql = "update Servico set Nome = '{}' where id = {}".format(nomeServico, id)
                     query_result = engine.execute(sql)
+                    # flash('Seu usuário não possui permissão para executar esta ação')
+                    flash('Serviço alterado com sucesso')
+                    return redirect(url_for('Servicos'))
+                else:
                     flash('Seu usuário não possui permissão para executar esta ação')
                     return redirect(url_for('Servicos'))
-                # return redirect(reactPort+'Serviços')
-                # return 'Sem permissão'
 
             elif table == "Usuario":
                 if checaPermissao(g.user):
@@ -606,7 +608,15 @@ def delete(table, id):
                     sql = 'delete from Usuario where id = {}'.format(id)
                     engine.execute(sql)
                 return 'sem permissão'
+            # return 'deleted'
+
+            elif table == "ordensdeservico":
+                print('chegou aqui')
+                sql = 'delete from OrdensdeServico where id = {}'.format(id)
+                engine.execute(sql)
+                return 'sem permissão'
             return 'deleted'
+
     return redirect(url_for('login'))
 
 

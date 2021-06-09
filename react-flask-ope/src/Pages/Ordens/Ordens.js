@@ -102,7 +102,7 @@ const Ordens = () => {
 
     const deleteFunction = (id, type) => {
         if (window.confirm('Deseja realmente excluir esse registro?')) {
-            fetch('/delete/Ordem_S/' + id, {
+            fetch('/delete/ordensdeservico/' + id, {
             method: 'DELETE',
             })
             .then(res => {

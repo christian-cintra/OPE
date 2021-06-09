@@ -181,10 +181,10 @@ const EditOrdem = () => {
                         <label>Serivço Executado:</label>
                             <br/>
                             <select name="servicoExecutado" id="servicoExecutado" className="form-select">
-                            <option value={1}>1 - Instalação de rede doméstica</option>
-                            <option value={2}>2 - Instalação de rede comercial</option>
-                            <option value={3}>3 - Reparo geral</option>
-                            <option value={4}>4 - Reparo de vazamento</option>
+                            <option value={17}>1 - Instalação de rede doméstica</option>
+                            <option value={18}>2 - Instalação de rede comercial</option>
+                            <option value={19}>3 - Reparo geral</option>
+                            <option value={30}>4 - Reparo de vazamento</option>
                         </select>         
                         </div>
 
