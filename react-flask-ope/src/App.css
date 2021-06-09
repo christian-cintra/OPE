@@ -14,6 +14,13 @@ p {
   border-bottom: 3px solid var(--primary-color);
 }
 
+.error {
+  text-align: center;
+  font-size: 1.2em;
+  color: var(--primary-color);
+  margin-top: 5em;
+}
+
 .title {
 margin-left: 60px;
 margin-top: 20px;
