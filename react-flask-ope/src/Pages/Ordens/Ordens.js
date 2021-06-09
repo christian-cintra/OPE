@@ -13,6 +13,7 @@ const Ordens = () => {
     const [ordensExecutadas, setOrdensExecutadas] = useState([]);
     
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [filterText, setFilterText] = useState('');
     const [filtroFase, setFiltroFase] = useState('0');
@@ -35,7 +36,11 @@ const Ordens = () => {
             setOrdensExecutadas(data.result.filter((ordem) => ordem.fase == 4))
 
             setLoading(false);
-          });
+          })
+          .catch(e => {
+            console.log('e', e)
+            setError('Ops, não foi possível conectar! Por favor, tente novamente mais tarde')
+        });
     }, []);
 
     const editFunction = (id) => {
@@ -169,7 +174,9 @@ const Ordens = () => {
                     <button type="button" className="btn novo-item" onClick={FiltrarOrdensStatus} disabled={loading}>Filtrar</button>
                 </div>
 
-                {loading && <Loading />}
+                {loading && error == null && <Loading />}
+
+                {error != null && <p className="error">{error}</p>}
 
                 {!loading && <section className="itens-ordens">
                     <div className="ordens-novas">

@@ -4,8 +4,14 @@ body {
   --blue-color: #1244b7;
   font-family: "Nunito", Helvetica, Arial, sans-serif;
   background: #f7f7f7;
+  --error-color: #ff0d0d;
 }
 
+.error-text {
+  color: var(--error-color);
+  margin-bottom: 30px;
+  font-weight: 700;
+}
 p {
   margin: 0;
 }

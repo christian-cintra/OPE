@@ -48,14 +48,22 @@ const Estoque = () => {
                 console.log('estoque', data)
                 setEstoque(data.result);
                 setLoading(false);
-                });
+                })
+            .catch(e => {
+                console.log('e', e)
+                setError('Ops, não foi possível conectar! Por favor, tente novamente mais tarde')
+            });
         }
         else {
             fetch('/api/estoque').then(res => res.json()).then(data => {
                 setLoading(false);
                 console.log('estoque', data)
-                setEstoque(data.result);
-        });
+                setEstoque(data.result);                
+            })
+            .catch(e => {
+                console.log('e', e)
+                setError('Ops, não foi possível conectar! Por favor, tente novamente mais tarde')
+            });
 
         }
     }
@@ -91,6 +99,8 @@ const Estoque = () => {
             </div>
 
             {loading && <Loading />}
+
+            {error != null && <p className="error">{error}</p>}
 
                 <div>
                     

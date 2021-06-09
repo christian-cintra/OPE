@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 const Servicos = () => {
     const [estoque, setServicos] = useState([]);
     const [error, setError] = useState(null);
+    const [isADM, setIsADM] = useState(false);
 
     useEffect(() => {
+        setIsADM(localStorage.getItem('adm') == "true" ? true : false)
         fetch('/api/servicos')
         .then(function(response) {
             if (!response.ok) {
@@ -47,7 +49,7 @@ const Servicos = () => {
             <main>
                 <div class="flex header-container">
                     <h1 class="title">Servicos</h1>
-                    <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>
+                    {isADM && <button type="button" class="btn novo-item" onClick={addFunction}>Novo item</button>}
                 </div>
 
                 {error != null ? <p className="error">{error}</p>
