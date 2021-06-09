@@ -49,10 +49,11 @@ const EditOrdem = () => {
                 id: data[0],
                 detalhes: data[1],
                 valorPecas: data[2],
-                tipoServico: data[3],
-                valorServico: data[4],
-                fase: data[5],
-                statusPagamento: data[6]
+                valorServico: data[3],
+                fase: data[4],
+                statusPagamento: data[5],
+                responsavel_id: data[6],
+                tipoServico: data[7]
             }
             setItem(body);
         });
@@ -203,7 +204,7 @@ const EditOrdem = () => {
 
                         </select>         
                         </div>
-                        <input name="dataexe" id="dataexe" type="hidden" size="40" value={item.fase == 4 ? new Date().toJSON() : null}/>
+                        
 
                         <div className="form-group">
                             <label>Status do Pagamento:</label>
@@ -233,6 +234,7 @@ const EditOrdem = () => {
                                 <button id="submit" type="submit" className="btn novo-item" style={{width: '200px'}}>Salvar</button>
                             </div>
                         </div> 
+                        <input name="dataexe" id="dataexe" type="hidden" size="40" value={item.fase == 4 ? new Date().toJSON() : null}/>
                     </div>
 
                     <div className="os-agendamentos">

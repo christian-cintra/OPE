@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from datetime import timedelta, datetime, tzinfo
+from datetime import timedelta, datetime
 import urllib
-import pytz
 import pyodbc
+from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.expression import null
 
 app = Flask(__name__)
 CORS(app)
@@ -149,16 +150,16 @@ def UsuariosAPI():
 @app.route('/api/ordensdeservico', methods=['POST', 'GET'])
 def OrdensDeServicoAPI():
     if checaSession(g.user):
-<<<<<<< HEAD
+
         data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
 
         for row in data:
-            if row.dataexe != None and row.dataexe - datetime.now() > timedelta(minutes=5):
+            if row.dataexe != None and row.fase == 4 and datetime.utcnow() - row.dataexe > timedelta(minutes=20):
                 sql = "UPDATE ordensdeservico SET fase = 5 where id = {}".format(row.id)
                 engine.execute(sql)
 
         data = engine.execute('select os.id, os.detalhes, os.valorPecas, os.valorServico, os.fase, os.statusPagamento, os.dataexe,Usuario.nome as responsavel from OrdensdeServico as os LEFT JOIN Usuario ON os.responsavel_id = Usuario.Id')
-=======
+
         return jsonify({'result': [dict(row) for row in data]})
 
     return redirect(url_for('login'))
@@ -425,10 +426,15 @@ def add(table):
                 servicoExecutado = request.form['servicoExecutado']
                 vs = request.form['valorServico']
                 fs = request.form['fase']
-                dataexecusao = request.form['dataexe']
                 st = request.form['statusPagamento']
                 responsavel = request.form['responsavel_id']
-                sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {}, '{}')".format(
+                if fs == 4 or fs == '4':
+                    dataexecusao = request.form['dataexe']
+                    sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {}, '{}')".format(
+                    dt, vl, vs, fs, st, responsavel, servicoExecutado, dataexecusao)
+                else: 
+                    dataexecusao = null()
+                    sql = "insert into OrdensdeServico values ('{}', {}, {}, {}, {}, {}, {}, {})".format(
                     dt, vl, vs, fs, st, responsavel, servicoExecutado, dataexecusao)
                 engine.execute(sql)
                 flash('Ordem de Serviço cadastrada com sucesso.')
@@ -503,11 +509,17 @@ def edit(table, id):
                 vl = request.form['valorPecas']
                 vs = request.form['valorServico']
                 fs = request.form['fase']
-                dataexecusao = request.form['dataexe']
                 st = request.form['statusPagamento']
                 re = request.form['responsavel_id']
-                sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={}, dataexe = '{}' where id = {}".format(
-                    dt, vl, vs, fs, st, re,dataexecusao, id)
+                if fs == 4 or fs == '4':
+                    dataexecusao = request.form['dataexe']
+                    sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={}, dataexe = '{}' where id = {}".format(
+                    dt, vl, vs, fs, st, re, dataexecusao, id)
+                else:
+                    dataexecusao = null()
+                    sql = "update OrdensdeServico set detalhes = '{}', valorPecas = {}, valorServico = {}, fase = {}, statusPagamento = {}, responsavel_id={}, dataexe = {} where id = {}".format(
+                    dt, vl, vs, fs, st, re, dataexecusao, id)
+
                 query_result = engine.execute(sql)
                 return redirect(reactPort)
 
@@ -564,8 +576,15 @@ def delete(table, id):
                     engine.execute(sql)
                 return 'sem permissão'
             elif table == "Ordem_S":
-                sql = 'delete from OrdensdeServico where id = {}'.format(id)
-                engine.execute(sql)
+                try:
+                    sql = 'delete from OrdensdeServico where id = {}'.format(id)
+                    engine.execute(sql)
+                except:
+                    sql3 = 'delete from agendamentos where idOs = {}'.format(id)
+                    sql2 = 'delete from materiasordemdeservico where id_os = {}'.format(id)
+                    engine.execute(sql3)
+                    engine.execute(sql2)
+                    engine.execute(sql)
 
             elif table == "Servicos":
                 if checaPermissao(g.user):
