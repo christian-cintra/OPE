@@ -25,7 +25,7 @@ app.secret_key = "oi"
 app.permanent_session_lifetime = timedelta(minutes=120)
 app.debug = True
 
-reactPort = "http://localhost:3000"
+# reactPort = "http://localhost:3000"
 
 admin = ''
 
