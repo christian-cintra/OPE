@@ -11,7 +11,7 @@ from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.expression import null
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 params = urllib.parse.quote_plus(
    "DRIVER={SQL Server};SERVER=ght.database.windows.net;DATABASE=ghteam_db;UID=ghtadmin;PWD=GHT_SI4B2020")
 db = SQLAlchemy(app)
@@ -25,7 +25,7 @@ app.secret_key = "oi"
 app.permanent_session_lifetime = timedelta(minutes=120)
 app.debug = True
 
-# reactPort = "http://localhost:3000"
+reactPort = "https://cintrainstalacoes.herokuapp.com/"
 
 admin = ''
 

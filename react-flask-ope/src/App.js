@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLocation } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
+import axios from 'axios'
 import './App.css';
 import Header from './Components/Header';
 import EditOrdem from './Pages/Ordens/Edit';
@@ -14,11 +15,16 @@ import Login from './Pages/Login/Login.js';
 import Logout from './Components/Logout.js';
 
 function App(props) {
-  const [placeholder, setPlaceholder] = useState('Hi');
+  const [getMessage, setGetMessage] = useState({})
 
-  useEffect(() => {
-  }, []);
-
+  useEffect(()=>{
+    axios.get('https://cintrainstalacoes.herokuapp.com/').then(response => {
+      console.log("SUCCESS", response)
+      setGetMessage(response)
+    }).catch(error => {
+      console.log(error)
+    })
+  }, [])
   return (
     <BrowserRouter>
           <Route path="/autenticacao" component={Login}/>
