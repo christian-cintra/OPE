@@ -29,7 +29,7 @@ function App(props) {
           }
 
           <Route path="/" exact component={Ordens}/>
-          {/* <Route path="/http://127.0.0.1:5000/" exact component={Ordens}/> */}
+          {/* <Route path="https://cintrainstalacoes.herokuapp.com/" exact component={Ordens}/> */}
           <Route path="/estoque" exact component={Estoque}/>
           <Route path="/ordemservico/edit/:id" exact component={EditOrdem}/>
           <Route path="/ordemservico/adicionar" exact component={EditOrdem}/>
